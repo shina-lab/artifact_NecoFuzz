@@ -1,0 +1,19 @@
+[submodule "external/syzkaller"]
+	path = external/syzkaller
+	url = https://github.com/google/syzkaller.git
+[submodule "external/qemu"]
+	path = external/qemu
+	url = https://git.qemu.org/git/qemu.git
+[submodule "external/linux"]
+	path = external/linux
+	url = https://github.com/torvalds/linux.git
+	shallow = true
+[submodule "external/xen"]
+	path = external/xen
+	url = https://xenbits.xen.org/git-http/xen.git
+[submodule "external/xtf"]
+	path = external/xtf
+	url = https://github.com/andyhhp/xtf
+[submodule "external/kvm-unit-tests"]
+	path = external/kvm-unit-tests
+	url = https://github.com/kvm-unit-tests/kvm-unit-tests

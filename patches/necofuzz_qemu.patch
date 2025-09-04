@@ -1,0 +1,698 @@
+diff --git a/accel/kvm/kvm-accel-ops.c b/accel/kvm/kvm-accel-ops.c
+index fbf4fe3497..90b786fac2 100644
+--- a/accel/kvm/kvm-accel-ops.c
++++ b/accel/kvm/kvm-accel-ops.c
+@@ -46,6 +46,35 @@ static void *kvm_vcpu_thread_fn(void *arg)
+     cpu_thread_signal_created(cpu);
+     qemu_guest_random_seed_thread_part2(cpu->random_seed);
+
++    kcov_t *resource = (kcov_t *) malloc(sizeof(kcov_t));
++    if (resource == NULL) {
++        perror("malloc");
++        exit(1);
++    }
++
++    resource->enable = 1;
++    resource->kcov_fd = open("/sys/kernel/debug/kcov", O_RDWR);
++    if (resource->kcov_fd == -1) {
++        perror("open");
++        free(resource);
++        exit(1);
++    }
++    if (ioctl(resource->kcov_fd, KCOV_INIT_TRACE, COVER_SIZE)){
++        perror("ioctl");
++        exit(1);
++    }
++    /* Mmap buffer shared between kernel- and user-space. */
++    resource->kcov_cover = (unsigned long *)mmap(NULL, COVER_SIZE * sizeof(unsigned long),
++                                                PROT_READ | PROT_WRITE, MAP_SHARED,
++                                                resource->kcov_fd, 0);
++    if ((void *)resource->kcov_cover == MAP_FAILED) {
++        perror("mmap");
++        close(resource->kcov_fd);
++        free(resource);
++        exit(1);
++    }
++
++    pthread_setspecific(resource_key, resource);
+     do {
+         if (cpu_can_run(cpu)) {
+             r = kvm_cpu_exec(cpu);
+@@ -60,6 +89,29 @@ static void *kvm_vcpu_thread_fn(void *arg)
+     cpu_thread_signal_destroyed(cpu);
+     qemu_mutex_unlock_iothread();
+     rcu_unregister_thread();
++
++    if (resource == NULL) {
++        return NULL;
++    }
++
++    if (resource->kcov_cover != NULL && resource->kcov_cover != MAP_FAILED) {
++        if (munmap(resource->kcov_cover, COVER_SIZE * sizeof(unsigned long))) {
++            perror("munmap");
++        }
++    }
++
++    if (resource->kcov_fd >= 0) {
++        if (close(resource->kcov_fd)) {
++            perror("close");
++        }
++    }
++
++    resource->enable = 0;
++    resource->kcov_fd = -1;
++    resource->kcov_cover = NULL;
++
++    free(resource);
++
+     return NULL;
+ }
+
+diff --git a/accel/kvm/kvm-all.c b/accel/kvm/kvm-all.c
+index f99b0becd8..65b264385e 100644
+--- a/accel/kvm/kvm-all.c
++++ b/accel/kvm/kvm-all.c
+@@ -2985,18 +2985,93 @@ int kvm_cpu_exec(CPUState *cpu)
+     return ret;
+ }
+
++uint16_t hash_int_to_16b(int val) {
++    return (val >> 16) ^ (val &0x0000ffff);
++}
++
++static void kcov_save(unsigned long kcov_n, unsigned long *kcov_cover){
++    uint16_t cur_location=0;
++    uint16_t prev_location=0;
++
++    for (unsigned long i = 0; i < kcov_n; i++) {
++        int cov = (int)(kcov_cover[i+1]-kvm_arch_base);
++        if (cov >= 0 && cov < MAX_KVM_ARCH){
++            current_arch_coverage[cov] = 1;
++            cur_location = hash_int_to_16b(cov);
++            prev_location = cur_location >> 1;
++            DEBUG_PRINT("afl_bitmap_ptr %p at 0x%x\n", afl_bitmap_ptr,(cur_location ^ prev_location)&0xFFFF);
++            if(afl_bitmap_ptr == NULL) continue;
++            if(afl_bitmap_ptr[(cur_location ^ prev_location)&0xFFFF] != 0xff){
++                afl_bitmap_ptr[(cur_location ^ prev_location)&0xFFFF]++;
++            }
++        }
++        else {
++            cov = (int)(kcov_cover[i+1]-kvm_base);
++            if (cov >= 0 && cov < MAX_KVM){
++                current_kvm_coverage[cov] = 1;
++                cur_location = hash_int_to_16b(cov);
++                DEBUG_PRINT("afl_bitmap_ptr %p at 0x%x\n", afl_bitmap_ptr,(cur_location ^ prev_location)&0xFFFF);
++                if(afl_bitmap_ptr == NULL) continue;
++                prev_location = cur_location >> 1;
++                if(afl_bitmap_ptr[(cur_location ^ prev_location)&0xFFFF] != 0xff){
++                    afl_bitmap_ptr[(cur_location ^ prev_location)&0xFFFF]++;
++                }
++            }
++        }
++    }
++}
++
+ int kvm_ioctl(KVMState *s, int type, ...)
+ {
+     int ret;
+     void *arg;
+     va_list ap;
++    int kcov_fd;
++    unsigned long *kcov_cover;
++    unsigned long kcov_n;
+
+     va_start(ap, type);
+     arg = va_arg(ap, void *);
+     va_end(ap);
+
+     trace_kvm_ioctl(type, arg);
+-    ret = ioctl(s->fd, type, arg);
++    kcov_t *resource = (kcov_t *) pthread_getspecific(resource_key);
++    if (resource != NULL && resource->enable == 1) {
++        kcov_fd = resource->kcov_fd;
++        kcov_cover = resource->kcov_cover;
++        if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)){
++            DEBUG_PRINT("ioctl\n");
++            perror("ioctl"), exit(1);
++        }
++
++        __atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++        ret = ioctl(s->fd, type, arg);
++        kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED);
++
++        kcov_save(kcov_n, kcov_cover);
++
++        if (ioctl(kcov_fd, KCOV_DISABLE, 0))
++            perror("ioctl"), exit(1);
++    }else if(global_kcov_fd != 0) {
++        kcov_fd = global_kcov_fd;
++        kcov_cover = global_kcov_cover;
++        if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)){
++            DEBUG_PRINT("ioctl\n");
++            perror("ioctl"), exit(1);
++        }
++
++        __atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++        ret = ioctl(s->fd, type, arg);
++        kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED);
++
++        kcov_save(kcov_n, kcov_cover);
++
++        if (ioctl(kcov_fd, KCOV_DISABLE, 0))
++            perror("ioctl"), exit(1);
++    }else {
++        ret = ioctl(s->fd, type, arg);
++    }
++
+     if (ret == -1) {
+         ret = -errno;
+     }
+@@ -3008,13 +3083,52 @@ int kvm_vm_ioctl(KVMState *s, int type, ...)
+     int ret;
+     void *arg;
+     va_list ap;
++    int kcov_fd;
++    unsigned long *kcov_cover;
++    unsigned long kcov_n;
+
+     va_start(ap, type);
+     arg = va_arg(ap, void *);
+     va_end(ap);
+
+     trace_kvm_vm_ioctl(type, arg);
+-    ret = ioctl(s->vmfd, type, arg);
++
++    kcov_t *resource = (kcov_t *) pthread_getspecific(resource_key);
++    if (resource != NULL && resource->enable == 1) {
++        kcov_fd = resource->kcov_fd;
++        kcov_cover = resource->kcov_cover;
++        if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)){
++            DEBUG_PRINT("ioctl\n");
++            perror("ioctl"), exit(1);
++        }
++
++        __atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++        ret = ioctl(s->vmfd, type, arg);
++        kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED);
++
++        kcov_save(kcov_n, kcov_cover);
++
++        if (ioctl(kcov_fd, KCOV_DISABLE, 0))
++            perror("ioctl"), exit(1);
++    }else if(global_kcov_fd != 0) {
++        kcov_fd = global_kcov_fd;
++        kcov_cover = global_kcov_cover;
++        if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)){
++            DEBUG_PRINT("ioctl\n");
++            perror("ioctl"), exit(1);
++        }
++
++        __atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++        ret = ioctl(s->vmfd, type, arg);
++        kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED);
++
++        kcov_save(kcov_n, kcov_cover);
++
++        if (ioctl(kcov_fd, KCOV_DISABLE, 0))
++            perror("ioctl"), exit(1);
++    }else {
++        ret = ioctl(s->vmfd, type, arg);
++    }
+     if (ret == -1) {
+         ret = -errno;
+     }
+@@ -3026,13 +3140,52 @@ int kvm_vcpu_ioctl(CPUState *cpu, int type, ...)
+     int ret;
+     void *arg;
+     va_list ap;
++    int kcov_fd;
++    unsigned long *kcov_cover;
++    unsigned long kcov_n;
+
+     va_start(ap, type);
+     arg = va_arg(ap, void *);
+     va_end(ap);
+
+     trace_kvm_vcpu_ioctl(cpu->cpu_index, type, arg);
+-    ret = ioctl(cpu->kvm_fd, type, arg);
++
++    kcov_t *resource = (kcov_t *) pthread_getspecific(resource_key);
++    if (resource != NULL && resource->enable == 1) {
++        kcov_fd = resource->kcov_fd;
++        kcov_cover = resource->kcov_cover;
++        if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)){
++            DEBUG_PRINT("ioctl\n");
++            perror("ioctl"), exit(1);
++        }
++
++        __atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++        ret = ioctl(cpu->kvm_fd, type, arg);
++        kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED);
++
++        kcov_save(kcov_n, kcov_cover);
++
++        if (ioctl(kcov_fd, KCOV_DISABLE, 0))
++            perror("ioctl"), exit(1);
++    }else if(global_kcov_fd != 0) {
++        kcov_fd = global_kcov_fd;
++        kcov_cover = global_kcov_cover;
++        if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)){
++            DEBUG_PRINT("ioctl\n");
++            perror("ioctl"), exit(1);
++        }
++
++        __atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++        ret = ioctl(cpu->kvm_fd, type, arg);
++        kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED);
++
++        kcov_save(kcov_n, kcov_cover);
++
++        if (ioctl(kcov_fd, KCOV_DISABLE, 0))
++            perror("ioctl"), exit(1);
++    }else {
++        ret = ioctl(cpu->kvm_fd, type, arg);
++    }
+     if (ret == -1) {
+         ret = -errno;
+     }
+diff --git a/accel/kvm/kvm-cpus.h b/accel/kvm/kvm-cpus.h
+index fd63fe6a59..48edea4994 100644
+--- a/accel/kvm/kvm-cpus.h
++++ b/accel/kvm/kvm-cpus.h
+@@ -11,6 +11,36 @@
+ #define KVM_CPUS_H
+
+ #include "sysemu/cpus.h"
++#include <sys/ioctl.h>
++
++// #define DEBUG_PRINT(...)     printf("%s(%d) %s:", __FILE__, __LINE__, __func__), printf(__VA_ARGS__)
++#define DEBUG_PRINT(...)
++#define KCOV_INIT_TRACE _IOR('c', 1, unsigned long)
++#define KCOV_ENABLE _IO('c', 100)
++#define KCOV_DISABLE _IO('c', 101)
++#define COVER_SIZE (64 << 14)
++
++#define KCOV_TRACE_PC 0
++#define KCOV_TRACE_CMP 1
++
++extern int global_kcov_fd;
++extern unsigned long * global_kcov_cover;
++extern uint8_t *afl_bitmap_ptr;
++extern uint64_t MAX_KVM_ARCH;
++extern uint64_t MAX_KVM;
++
++extern unsigned long kvm_arch_base;
++extern unsigned long kvm_base;
++extern uint8_t *current_arch_coverage;
++extern uint8_t *current_kvm_coverage;
++extern pthread_key_t resource_key;
++typedef struct {
++    int enable;
++    int kcov_fd;
++    unsigned long *kcov_cover;
++} kcov_t;
++
++uint16_t hash_int_to_16b(int val);
+
+ int kvm_init_vcpu(CPUState *cpu, Error **errp);
+ int kvm_cpu_exec(CPUState *cpu);
+diff --git a/softmmu/main.c b/softmmu/main.c
+index 694388bd7f..b5c03f8f50 100644
+--- a/softmmu/main.c
++++ b/softmmu/main.c
+@@ -25,7 +25,7 @@
+ #include "qemu/osdep.h"
+ #include "qemu-main.h"
+ #include "sysemu/sysemu.h"
+-
++#include "../accel/kvm/kvm-cpus.h"
+ #ifdef CONFIG_SDL
+ #include <SDL.h>
+ #endif
+@@ -37,6 +37,7 @@ int qemu_default_main(void)
+     status = qemu_main_loop();
+     qemu_cleanup();
+
++    pthread_key_delete(resource_key);
+     return status;
+ }
+
+diff --git a/softmmu/vl.c b/softmmu/vl.c
+index 5115221efe..abbe2f9539 100644
+--- a/softmmu/vl.c
++++ b/softmmu/vl.c
+@@ -135,6 +135,30 @@
+
+ #include "config-host.h"
+
++#include "../accel/kvm/kvm-cpus.h"
++
++#include <libelf.h>
++#include <sys/utsname.h>
++#include <gelf.h>
++
++unsigned long kvm_arch_base;
++unsigned long kvm_base;
++uint64_t MAX_KVM_ARCH;
++uint64_t MAX_KVM;
++int global_kcov_fd;
++unsigned long * global_kcov_cover;
++uint8_t *current_arch_coverage;
++uint8_t *current_kvm_coverage;
++uint8_t *afl_bitmap_ptr;
++
++pthread_key_t resource_key;
++
++typedef struct {
++    const char *name;
++    size_t size;
++    uint8_t **ptr;
++} shm_config_t;
++
+ #define MAX_VIRTIO_CONSOLES 1
+
+ typedef struct BlockdevOptionsQueueEntry {
+@@ -2625,8 +2649,323 @@ void qmp_x_exit_preconfig(Error **errp)
+     }
+ }
+
++static void resource_destructor(void *resource) {
++    free(resource);
++}
++
++static uint64_t check_text_size(char *filepath) {
++    Elf         *elf;
++    Elf_Scn     *scn = NULL;
++    GElf_Shdr   shdr;
++    int         fd;
++    size_t      shstrndx;  // Section header string table index
++
++    // Open the file
++    fd = open(filepath, O_RDONLY);
++    if (fd < 0) {
++        perror("open");
++        return 1;
++    }
++
++    if (elf_version(EV_CURRENT) == EV_NONE) {
++        // library out of date
++        exit(1);
++    }
++
++    elf = elf_begin(fd, ELF_C_READ, NULL);
++
++    // Retrieve the section header string table index
++    if (elf_getshdrstrndx(elf, &shstrndx) != 0) {
++        perror("elf_getshdrstrndx");
++        exit(1);
++    }
++
++    while ((scn = elf_nextscn(elf, scn)) != NULL) {
++        if (gelf_getshdr(scn, &shdr) != &shdr) {
++            // error
++            exit(1);
++        }
++
++        if (shdr.sh_type == SHT_PROGBITS) {
++            char *name;
++            name = elf_strptr(elf, shstrndx, shdr.sh_name);  // Use shstrndx
++            if (name && strcmp(name, ".text") == 0) {
++                break;
++            }
++        }
++    }
++
++    elf_end(elf);
++    close(fd);
++
++    return (uint64_t)shdr.sh_size;
++}
++
++static void check_cpu_vendor(void) {
++    FILE *cpuinfo = fopen("/proc/cpuinfo", "rb");
++    char buffer[255];
++    char vendor[16];
++    struct utsname utbuffer;
++    char filepath[128];
++    FILE *fkvm_arch = NULL;
++    FILE *fkvm = NULL;
++    // start point of .text of kvm/kvm-intel or kvm-amd
++    char kvm_arch_str[18];
++    char kvm_str[18];
++
++    if (cpuinfo == NULL) {
++        perror("fopen cpuinfo");
++        return;
++    }
++
++    if (uname(&utbuffer) != 0) {
++        perror("uname");
++        return;
++    }
++
++    snprintf(filepath, 128, "/usr/lib/modules/%s/kernel/arch/x86/kvm/kvm.ko", utbuffer.release);
++
++    MAX_KVM = check_text_size(filepath);
++
++    fkvm = fopen("/sys/module/kvm/sections/.text","r");
++    if (fkvm == NULL)
++        perror("fopen kvm"), exit(1);
++
++    int n = fread(kvm_str, sizeof(char),18,fkvm);
++    if(n != 18)
++        perror("fread"), exit(1);
++    kvm_base = strtoul(kvm_str, NULL,0);
++
++    if (fclose(fkvm) == EOF)
++        perror("fclose"), exit(1);
++
++    while (fgets(buffer, 255, cpuinfo)) {
++        if (strncmp(buffer, "vendor_id", 9) == 0) {
++            sscanf(buffer, "vendor_id : %s", vendor);
++
++            if (strcmp(vendor, "GenuineIntel") == 0) {
++                snprintf(filepath, 128, "/usr/lib/modules/%s/kernel/arch/x86/kvm/kvm-intel.ko", utbuffer.release);
++                MAX_KVM_ARCH = check_text_size(filepath);
++                fkvm_arch = fopen("/sys/module/kvm_intel/sections/.text","r");
++                if (fkvm_arch == NULL)
++                    perror("fopen"), exit(1);
++            } else if (strcmp(vendor, "AuthenticAMD") == 0) {
++                snprintf(filepath, 128, "/usr/lib/modules/%s/kernel/arch/x86/kvm/kvm-amd.ko", utbuffer.release);
++                MAX_KVM_ARCH = check_text_size(filepath);
++                fkvm_arch = fopen("/sys/module/kvm_amd/sections/.text","r");
++                if (fkvm_arch == NULL)
++                    perror("fopen"), exit(1);
++            } else {
++                printf("This is a CPU from another vendor: %s\n", vendor);
++                // default value or another value
++                MAX_KVM_ARCH = 0;
++                return;
++            }
++            break;
++        }
++    }
++
++
++    if (fkvm_arch != NULL) {
++        n = fread(kvm_arch_str, sizeof(char), 18, fkvm_arch);
++        if (n != 18) {
++            perror("fread fkvm_arch");
++            exit(1);
++        }
++        kvm_arch_base = strtoul(kvm_arch_str, NULL, 0);
++        printf("kvm_arch_base type: %lx\n", kvm_arch_base);
++
++        if (fclose(fkvm_arch) == EOF) {
++            perror("fclose fkvm_arch");
++            exit(1);
++        }
++    } else {
++        fprintf(stderr, "Error: fkvm_arch is uninitialized.\n");
++        fclose(cpuinfo);
++        exit(1);
++    }
++    printf("kvm_base : %lx\n", kvm_base);
++    printf("MAX_KVM: %lx\n", MAX_KVM);
++    printf("kvm_arch_base : %lx\n", kvm_arch_base);
++    printf("MAX_KVM_ARCH: %lx\n", MAX_KVM_ARCH);
++    fclose(cpuinfo);
++}
++
++static int setup_shared_memory(const char *name, size_t size, uid_t uid, gid_t gid) {
++    // Try to create new segment
++    int fd = shm_open(name, O_CREAT | O_EXCL | O_RDWR, 0666);
++
++    if (fd == -1) {
++        if (errno == EEXIST) {
++            // Segment exists, try to open it
++            fd = shm_open(name, O_RDWR, 0);
++            if (fd == -1) {
++                fprintf(stderr, "Failed to open existing shared memory '%s': %s\n",
++                        name, strerror(errno));
++                return -1;
++            }
++        } else {
++            fprintf(stderr, "Failed to create shared memory '%s': %s\n",
++                    name, strerror(errno));
++            return -1;
++        }
++    } else {
++        // New segment created, set permissions and ownership
++        if (fchmod(fd, 0666) == -1) {
++            fprintf(stderr, "Failed to set permissions for '%s': %s\n",
++                    name, strerror(errno));
++            close(fd);
++            return -1;
++        }
++
++        if (fchown(fd, uid, gid) == -1) {
++            fprintf(stderr, "Failed to set ownership for '%s': %s\n",
++                    name, strerror(errno));
++            close(fd);
++            return -1;
++        }
++    }
++
++    // Always set/verify the size (important for coverage reset)
++    if (ftruncate(fd, size) == -1) {
++        fprintf(stderr, "Failed to set size for '%s': %s\n",
++                name, strerror(errno));
++        close(fd);
++        return -1;
++    }
++
++    return fd;
++}
++
++
++static int setup_coverage_memory(uid_t uid, gid_t gid) {
++    shm_config_t configs[] = {
++        {"/kvm_arch_coverage", MAX_KVM_ARCH, &current_arch_coverage},
++        {"/kvm_coverage", MAX_KVM, &current_kvm_coverage},
++        {"/coverage_bitmap", 65536, &afl_bitmap_ptr}
++    };
++
++    const int num_configs = sizeof(configs) / sizeof(configs[0]);
++    int fds[num_configs];
++
++    // Create all shared memory segments
++    for (int i = 0; i < num_configs; i++) {
++        fds[i] = setup_shared_memory(configs[i].name, configs[i].size, uid, gid);
++        if (fds[i] == -1) {
++            // Cleanup on failure
++            for (int j = 0; j < i; j++) {
++                close(fds[j]);
++            }
++            return -1;
++        }
++    }
++
++    // Map all segments
++    for (int i = 0; i < num_configs; i++) {
++        *configs[i].ptr = (uint8_t *)mmap(NULL, configs[i].size,
++                                          PROT_READ | PROT_WRITE,
++                                          MAP_SHARED, fds[i], 0);
++        if (*configs[i].ptr == MAP_FAILED) {
++            fprintf(stderr, "Failed to map '%s': %s\n",
++                    configs[i].name, strerror(errno));
++
++            // Cleanup
++            for (int j = 0; j < num_configs; j++) {
++                close(fds[j]);
++            }
++            return -1;
++        }
++
++        close(fds[i]); // Close fd after mapping
++    }
++
++    return 0;
++}
++
++static int setup_kernel_coverage(void) {
++    if (global_kcov_fd == 0) {
++        global_kcov_fd = open("/sys/kernel/debug/kcov", O_RDWR);
++        if (global_kcov_fd == -1) {
++            fprintf(stderr, "Failed to open kcov: %s\n", strerror(errno));
++            return -1;
++        }
++    }
++
++    // Setup trace mode and trace size
++    if (ioctl(global_kcov_fd, KCOV_INIT_TRACE, COVER_SIZE) == -1) {
++        fprintf(stderr, "Failed to initialize kcov: %s\n", strerror(errno));
++        close(global_kcov_fd);
++        return -1;
++    }
++
++    // Map kcov buffer
++    global_kcov_cover = (unsigned long *)mmap(NULL,
++                                              COVER_SIZE * sizeof(unsigned long),
++                                              PROT_READ | PROT_WRITE,
++                                              MAP_SHARED, global_kcov_fd, 0);
++    if (global_kcov_cover == MAP_FAILED) {
++        fprintf(stderr, "Failed to map kcov buffer: %s\n", strerror(errno));
++        close(global_kcov_fd);
++        return -1;
++    }
++
++    return 0;
++}
++
++static int safe_str_to_int(const char *str, int *result) {
++    if (!str || !*str) return -1;
++
++    char *endptr;
++    errno = 0;
++    long val = strtol(str, &endptr, 10);
++
++    if (errno != 0 || *endptr != '\0' || val < 0 || val > INT_MAX) {
++        return -1;
++    }
++
++    *result = (int)val;
++    return 0;
++}
++
+ void qemu_init(int argc, char **argv)
+ {
++    char *sudo_uid_str = getenv("SUDO_UID");
++    char *sudo_gid_str = getenv("SUDO_GID");
++
++    if (!sudo_uid_str || !sudo_gid_str) {
++        fprintf(stderr, "SUDO_UID and SUDO_GID environment variables must be set\n");
++        exit(1);
++    }
++
++    // Safely convert to integers
++    int uid_int, gid_int;
++    if (safe_str_to_int(sudo_uid_str, &uid_int) != 0 ||
++        safe_str_to_int(sudo_gid_str, &gid_int) != 0) {
++        fprintf(stderr, "Invalid SUDO_UID or SUDO_GID values\n");
++        exit(1);
++    }
++
++    uid_t uid = (uid_t)uid_int;
++    gid_t gid = (gid_t)gid_int;
++
++    // Initialize components
++    check_cpu_vendor();
++    pthread_key_create(&resource_key, resource_destructor);
++
++    // Setup coverage memory segments
++    if (setup_coverage_memory(uid, gid) != 0) {
++        fprintf(stderr, "Failed to setup coverage memory segments\n");
++        exit(1);
++    }
++
++    // Setup kernel coverage
++    if (setup_kernel_coverage() != 0) {
++        fprintf(stderr, "Failed to setup kernel coverage\n");
++        exit(1);
++    }
++
++    printf("QEMU coverage initialization completed successfully\n");
++
+     QemuOpts *opts;
+     QemuOpts *icount_opts = NULL, *accel_opts = NULL;
+     QemuOptsList *olist;

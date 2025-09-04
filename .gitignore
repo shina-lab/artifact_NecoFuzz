@@ -1,0 +1,17 @@
+*
+!*/
+!*.*
+*.o
+.config*
+
+kvm-necofuzz/
+xen-necofuzz/
+vbox-necofuzz/
+vmware-necofuzz/
+fuzz_inputs/
+coverage_outputs/
+seeds/
+OVMF.fd
+*.efi
+config.yaml
+!Makefile

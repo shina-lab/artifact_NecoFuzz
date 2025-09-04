@@ -1,0 +1,2014 @@
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index c692cc86e..806ef1d23 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -118,68 +118,68 @@ TEST_GEN_PROGS_x86_64 += x86_64/amx_test
+ TEST_GEN_PROGS_x86_64 += x86_64/max_vcpuid_cap_test
+ TEST_GEN_PROGS_x86_64 += x86_64/triple_fault_event_test
+ TEST_GEN_PROGS_x86_64 += x86_64/recalc_apic_map_test
+-TEST_GEN_PROGS_x86_64 += access_tracking_perf_test
+-TEST_GEN_PROGS_x86_64 += demand_paging_test
+-TEST_GEN_PROGS_x86_64 += dirty_log_test
+-TEST_GEN_PROGS_x86_64 += dirty_log_perf_test
+-TEST_GEN_PROGS_x86_64 += hardware_disable_test
+-TEST_GEN_PROGS_x86_64 += kvm_create_max_vcpus
+-TEST_GEN_PROGS_x86_64 += kvm_page_table_test
+-TEST_GEN_PROGS_x86_64 += max_guest_memory_test
+-TEST_GEN_PROGS_x86_64 += memslot_modification_stress_test
+-TEST_GEN_PROGS_x86_64 += memslot_perf_test
+-TEST_GEN_PROGS_x86_64 += rseq_test
+-TEST_GEN_PROGS_x86_64 += set_memory_region_test
+-TEST_GEN_PROGS_x86_64 += steal_time
+-TEST_GEN_PROGS_x86_64 += kvm_binary_stats_test
+-TEST_GEN_PROGS_x86_64 += system_counter_offset_test
++# TEST_GEN_PROGS_x86_64 += access_tracking_perf_test
++# TEST_GEN_PROGS_x86_64 += demand_paging_test
++# TEST_GEN_PROGS_x86_64 += dirty_log_test
++# TEST_GEN_PROGS_x86_64 += dirty_log_perf_test
++# TEST_GEN_PROGS_x86_64 += hardware_disable_test
++# TEST_GEN_PROGS_x86_64 += kvm_create_max_vcpus
++# TEST_GEN_PROGS_x86_64 += kvm_page_table_test
++# TEST_GEN_PROGS_x86_64 += max_guest_memory_test
++# TEST_GEN_PROGS_x86_64 += memslot_modification_stress_test
++# TEST_GEN_PROGS_x86_64 += memslot_perf_test
++# TEST_GEN_PROGS_x86_64 += rseq_test
++# TEST_GEN_PROGS_x86_64 += set_memory_region_test
++# TEST_GEN_PROGS_x86_64 += steal_time
++# TEST_GEN_PROGS_x86_64 += kvm_binary_stats_test
++# TEST_GEN_PROGS_x86_64 += system_counter_offset_test
+ 
+ # Compiled outputs used by test targets
+ TEST_GEN_PROGS_EXTENDED_x86_64 += x86_64/nx_huge_pages_test
+ 
+-TEST_GEN_PROGS_aarch64 += aarch64/aarch32_id_regs
+-TEST_GEN_PROGS_aarch64 += aarch64/arch_timer
+-TEST_GEN_PROGS_aarch64 += aarch64/debug-exceptions
+-TEST_GEN_PROGS_aarch64 += aarch64/get-reg-list
+-TEST_GEN_PROGS_aarch64 += aarch64/hypercalls
+-TEST_GEN_PROGS_aarch64 += aarch64/page_fault_test
+-TEST_GEN_PROGS_aarch64 += aarch64/psci_test
+-TEST_GEN_PROGS_aarch64 += aarch64/smccc_filter
+-TEST_GEN_PROGS_aarch64 += aarch64/vcpu_width_config
+-TEST_GEN_PROGS_aarch64 += aarch64/vgic_init
+-TEST_GEN_PROGS_aarch64 += aarch64/vgic_irq
+-TEST_GEN_PROGS_aarch64 += access_tracking_perf_test
+-TEST_GEN_PROGS_aarch64 += demand_paging_test
+-TEST_GEN_PROGS_aarch64 += dirty_log_test
+-TEST_GEN_PROGS_aarch64 += dirty_log_perf_test
+-TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
+-TEST_GEN_PROGS_aarch64 += kvm_page_table_test
+-TEST_GEN_PROGS_aarch64 += memslot_modification_stress_test
+-TEST_GEN_PROGS_aarch64 += memslot_perf_test
+-TEST_GEN_PROGS_aarch64 += rseq_test
+-TEST_GEN_PROGS_aarch64 += set_memory_region_test
+-TEST_GEN_PROGS_aarch64 += steal_time
+-TEST_GEN_PROGS_aarch64 += kvm_binary_stats_test
++# TEST_GEN_PROGS_aarch64 += aarch64/aarch32_id_regs
++# TEST_GEN_PROGS_aarch64 += aarch64/arch_timer
++# TEST_GEN_PROGS_aarch64 += aarch64/debug-exceptions
++# TEST_GEN_PROGS_aarch64 += aarch64/get-reg-list
++# TEST_GEN_PROGS_aarch64 += aarch64/hypercalls
++# TEST_GEN_PROGS_aarch64 += aarch64/page_fault_test
++# TEST_GEN_PROGS_aarch64 += aarch64/psci_test
++# TEST_GEN_PROGS_aarch64 += aarch64/smccc_filter
++# TEST_GEN_PROGS_aarch64 += aarch64/vcpu_width_config
++# TEST_GEN_PROGS_aarch64 += aarch64/vgic_init
++# TEST_GEN_PROGS_aarch64 += aarch64/vgic_irq
++# TEST_GEN_PROGS_aarch64 += access_tracking_perf_test
++# TEST_GEN_PROGS_aarch64 += demand_paging_test
++# TEST_GEN_PROGS_aarch64 += dirty_log_test
++# TEST_GEN_PROGS_aarch64 += dirty_log_perf_test
++# TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
++# TEST_GEN_PROGS_aarch64 += kvm_page_table_test
++# TEST_GEN_PROGS_aarch64 += memslot_modification_stress_test
++# TEST_GEN_PROGS_aarch64 += memslot_perf_test
++# TEST_GEN_PROGS_aarch64 += rseq_test
++# TEST_GEN_PROGS_aarch64 += set_memory_region_test
++# TEST_GEN_PROGS_aarch64 += steal_time
++# TEST_GEN_PROGS_aarch64 += kvm_binary_stats_test
+ 
+-TEST_GEN_PROGS_s390x = s390x/memop
+-TEST_GEN_PROGS_s390x += s390x/resets
+-TEST_GEN_PROGS_s390x += s390x/sync_regs_test
+-TEST_GEN_PROGS_s390x += s390x/tprot
+-TEST_GEN_PROGS_s390x += s390x/cmma_test
+-TEST_GEN_PROGS_s390x += demand_paging_test
+-TEST_GEN_PROGS_s390x += dirty_log_test
+-TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
+-TEST_GEN_PROGS_s390x += kvm_page_table_test
+-TEST_GEN_PROGS_s390x += rseq_test
+-TEST_GEN_PROGS_s390x += set_memory_region_test
+-TEST_GEN_PROGS_s390x += kvm_binary_stats_test
++# TEST_GEN_PROGS_s390x = s390x/memop
++# TEST_GEN_PROGS_s390x += s390x/resets
++# TEST_GEN_PROGS_s390x += s390x/sync_regs_test
++# TEST_GEN_PROGS_s390x += s390x/tprot
++# TEST_GEN_PROGS_s390x += s390x/cmma_test
++# TEST_GEN_PROGS_s390x += demand_paging_test
++# TEST_GEN_PROGS_s390x += dirty_log_test
++# TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
++# TEST_GEN_PROGS_s390x += kvm_page_table_test
++# TEST_GEN_PROGS_s390x += rseq_test
++# TEST_GEN_PROGS_s390x += set_memory_region_test
++# TEST_GEN_PROGS_s390x += kvm_binary_stats_test
+ 
+-TEST_GEN_PROGS_riscv += demand_paging_test
+-TEST_GEN_PROGS_riscv += dirty_log_test
+-TEST_GEN_PROGS_riscv += kvm_create_max_vcpus
+-TEST_GEN_PROGS_riscv += kvm_page_table_test
+-TEST_GEN_PROGS_riscv += set_memory_region_test
+-TEST_GEN_PROGS_riscv += kvm_binary_stats_test
++# TEST_GEN_PROGS_riscv += demand_paging_test
++# TEST_GEN_PROGS_riscv += dirty_log_test
++# TEST_GEN_PROGS_riscv += kvm_create_max_vcpus
++# TEST_GEN_PROGS_riscv += kvm_page_table_test
++# TEST_GEN_PROGS_riscv += set_memory_region_test
++# TEST_GEN_PROGS_riscv += kvm_binary_stats_test
+ 
+ TEST_PROGS += $(TEST_PROGS_$(ARCH_DIR))
+ TEST_GEN_PROGS += $(TEST_GEN_PROGS_$(ARCH_DIR))
+@@ -219,7 +219,7 @@ no-pie-option := $(call try-run, echo 'int main(void) { return 0; }' | \
+ pgste-option = $(call try-run, echo 'int main(void) { return 0; }' | \
+ 	$(CC) -Werror -Wl$(comma)--s390-pgste -x c - -o "$$TMP",-Wl$(comma)--s390-pgste)
+ 
+-LDLIBS += -ldl
++LDLIBS += -ldl -lelf
+ LDFLAGS += -pthread $(no-pie-option) $(pgste-option)
+ 
+ LIBKVM_C := $(filter %.c,$(LIBKVM))
+diff --git a/tools/testing/selftests/kvm/include/coverage.h b/tools/testing/selftests/kvm/include/coverage.h
+new file mode 100644
+index 000000000..a4c08d217
+--- /dev/null
++++ b/tools/testing/selftests/kvm/include/coverage.h
+@@ -0,0 +1,248 @@
++// for NestedKVMFuzzer
++
++#include <fcntl.h>
++#include <pthread.h>
++#include <stddef.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/ioctl.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <unistd.h>
++#include <libelf.h>
++#include <fcntl.h>
++#include <sys/utsname.h>
++#include <gelf.h>
++// for COVERAGE_FILENAME
++
++#include <string.h>
++
++#define KCOV_INIT_TRACE _IOR('c', 1, unsigned long)
++#define KCOV_ENABLE _IO('c', 100)
++#define KCOV_DISABLE _IO('c', 101)
++#define COVER_SIZE (64 << 16)
++
++#define KCOV_TRACE_PC 0
++#define KCOV_TRACE_CMP 1
++
++int kcov_fd;
++unsigned long *kcov_cover, kcov_n;
++char coverage_file_path[200];
++char base_path[100]; 
++FILE *kvm_arch_coverage_file;
++FILE *kvm_coverage_file;
++unsigned long kvm_arch_base;
++unsigned long kvm_base;
++// #define MAX_KVM_ARCH 0xc0000
++// #define MAX_KVM 0x187000
++uint64_t MAX_KVM_ARCH;
++uint64_t MAX_KVM;
++
++uint8_t *kvm_arch_covered;
++uint8_t *kvm_covered;
++
++static uint64_t check_text_size(char *filepath) {
++    Elf         *elf;
++    Elf_Scn     *scn = NULL;
++    GElf_Shdr   shdr;
++    int         fd;
++    size_t      shstrndx;  // Section header string table index
++
++    // Open the file
++    fd = open(filepath, O_RDONLY);
++    if (fd < 0) {
++        perror("open");
++        return 1;
++    }
++
++    if (elf_version(EV_CURRENT) == EV_NONE) {
++        // library out of date
++        exit(1);
++    }
++
++    elf = elf_begin(fd, ELF_C_READ, NULL);
++    
++    // Retrieve the section header string table index
++    if (elf_getshdrstrndx(elf, &shstrndx) != 0) {
++        perror("elf_getshdrstrndx");
++        exit(1);
++    }
++
++    while ((scn = elf_nextscn(elf, scn)) != NULL) {
++        if (gelf_getshdr(scn, &shdr) != &shdr) {
++            // error
++            exit(1);
++        }
++
++        if (shdr.sh_type == SHT_PROGBITS) {
++            char *name;
++            name = elf_strptr(elf, shstrndx, shdr.sh_name);  // Use shstrndx
++            if (name && strcmp(name, ".text") == 0) {
++                break;
++            }
++        }
++    }
++
++    elf_end(elf);
++    close(fd);
++
++    return (uint64_t)shdr.sh_size;
++}
++
++static void check_cpu_vendor(void) {
++    FILE *cpuinfo = fopen("/proc/cpuinfo", "rb");
++    char buffer[255];
++    char vendor[16];
++    struct utsname utbuffer;
++    char filepath[128];
++    FILE *fkvm_arch;
++    FILE *fkvm;
++    // start point of .text of kvm/kvm-intel or kvm-amd
++    char kvm_arch_str[18];
++    char kvm_str[18];
++
++    if (cpuinfo == NULL) {
++        perror("fopen");
++        return;
++    }
++
++    if (uname(&utbuffer) != 0) {
++        perror("uname");
++        return;
++    }
++
++    snprintf(filepath, 128, "/usr/lib/modules/%s/kernel/arch/x86/kvm/kvm.ko", utbuffer.release);
++
++    MAX_KVM = check_text_size(filepath);
++
++    fkvm = fopen("/sys/module/kvm/sections/.text","r");
++    if (fkvm == NULL)
++        perror("fopen"), exit(1);
++
++    int n = fread(kvm_str, sizeof(char),18,fkvm);
++    if(n != 18)
++        perror("fread"), exit(1);
++    kvm_base = strtoul(kvm_str, NULL,0);
++
++    if (fclose(fkvm) == EOF)
++        perror("fclose"), exit(1);
++
++    while (fgets(buffer, 255, cpuinfo)) {
++        if (strncmp(buffer, "vendor_id", 9) == 0) {
++            sscanf(buffer, "vendor_id : %s", vendor);
++
++            if (strcmp(vendor, "GenuineIntel") == 0) {
++                snprintf(filepath, 128, "/usr/lib/modules/%s/kernel/arch/x86/kvm/kvm-intel.ko", utbuffer.release);
++                MAX_KVM_ARCH = check_text_size(filepath);
++                fkvm_arch = fopen("/sys/module/kvm_intel/sections/.text","r");
++                if (fkvm_arch == NULL)
++                    perror("fopen"), exit(1);
++            } else if (strcmp(vendor, "AuthenticAMD") == 0) {
++                snprintf(filepath, 128, "/usr/lib/modules/%s/kernel/arch/x86/kvm/kvm-amd.ko", utbuffer.release);
++                MAX_KVM_ARCH = check_text_size(filepath);
++                fkvm_arch = fopen("/sys/module/kvm_amd/sections/.text","r");
++                if (fkvm_arch == NULL)
++                    perror("fopen"), exit(1);
++            } else {
++                printf("This is a CPU from another vendor: %s\n", vendor);
++                // default value or another value
++                MAX_KVM_ARCH = 0;
++                return;
++            }
++            break;
++        }
++    }
++
++    n = fread(kvm_arch_str, sizeof(char),18,fkvm_arch);
++    if(n != 18)
++        perror("fread"), exit(1);
++    kvm_arch_base = strtoul(kvm_arch_str, NULL,0);
++    if (fclose(fkvm_arch) == EOF)
++        perror("fclose"), exit(1);
++
++    fclose(cpuinfo);
++}
++
++#define COVERAGE_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
++
++/* this should be macro to expand __FILE__ in COVERAGE_FILENAME to targed c filename */ \
++#define coverage_start() \
++    check_cpu_vendor(); \
++    kvm_arch_covered = malloc(sizeof(uint8_t)*MAX_KVM_ARCH); \
++    kvm_covered = malloc(sizeof(uint8_t)*MAX_KVM); \
++    kcov_fd = open("/sys/kernel/debug/kcov", O_RDWR); \
++    if (kcov_fd == -1) \
++        perror("open"), exit(1); \
++    char *base_path = getenv("COVERAGE_BASE_PATH"); \
++    if (!base_path) { \
++        base_path = "/tmp"; \
++    } \
++    sprintf(coverage_file_path, "%s/COVERAGE_ARCH_%s", base_path, COVERAGE_FILENAME); \
++    kvm_arch_coverage_file = fopen(coverage_file_path, "w"); \
++    if (kvm_arch_coverage_file == NULL) \
++        perror("fopen"), exit(1); \
++    sprintf(coverage_file_path, "%s/COVERAGE_KVM_%s", base_path, COVERAGE_FILENAME); \
++    kvm_coverage_file = fopen(coverage_file_path, "w"); \
++    if (kvm_coverage_file == NULL) \
++        perror("fopen"), exit(1); \
++    /* Setup trace mode and trace size. */ \
++    if (ioctl(kcov_fd, KCOV_INIT_TRACE, COVER_SIZE)) \
++        perror("ioctl"), exit(1); \
++    /* Mmap buffer shared between kernel- and user-space. */ \
++    kcov_cover = (unsigned long *)mmap(NULL, COVER_SIZE * sizeof(unsigned long), \
++                                    PROT_READ | PROT_WRITE, MAP_SHARED, kcov_fd, 0); \
++    if ((void *)kcov_cover == MAP_FAILED) \
++        perror("mmap"), exit(1); \
++	/* Enable coverage collection on the current thread. */ \
++	if (ioctl(kcov_fd, KCOV_ENABLE, KCOV_TRACE_PC)) \
++		perror("ioctl"), exit(1); \
++	/* Reset coverage from the tail of the ioctl() call. */ \
++	__atomic_store_n(&kcov_cover[0], 0, __ATOMIC_RELAXED);
++
++
++/* this doesn't have to be macro,
++but I make it a macro to match the format with coverage_start() */
++#define coverage_end() \
++	kcov_n = __atomic_load_n(&kcov_cover[0], __ATOMIC_RELAXED); \
++    for (int i = 0; i < kcov_n; i++) { \
++        int cov = (int)(kcov_cover[i+1]-kvm_arch_base); \
++        if (cov >= 0 && cov < MAX_KVM_ARCH){ \
++            if (kvm_arch_covered[cov] == 0){ \
++                kvm_arch_covered[cov] = 1; \
++		fprintf(kvm_arch_coverage_file,"%x\n",cov); \
++            } \
++        } else { \
++            cov = (int)(kcov_cover[i+1]-kvm_base); \
++            if (cov >= 0 && cov < MAX_KVM){ \
++                if (kvm_covered[cov] == 0){ \
++                    kvm_covered[cov] = 1; \
++		    fprintf(kvm_coverage_file,"%x\n",cov); \
++                } \
++            } \
++        } \
++    } \
++	/* Disable coverage collection for the current thread. After this call \
++	* coverage can be enabled for a different thread. \
++	*/ \
++    /*for(int i = 0; i < MAX_KVM_ARCH;i++){ \
++        if (kvm_arch_covered[i] == 1) \
++		fprintf(kvm_arch_coverage_file,"%x\n",i); \
++	} \
++    for(int i = 0; i < MAX_KVM;i++){ \
++        if (kvm_covered[i] == 1) \
++		fprintf(kvm_coverage_file,"%x\n",i); \
++	}*/ \
++	if (ioctl(kcov_fd, KCOV_DISABLE, 0)) \
++		perror("ioctl"), exit(1); \
++    /* Free resources. */ \
++    if (munmap(kcov_cover, COVER_SIZE * sizeof(unsigned long))) \
++        perror("munmap"), exit(1); \
++    if (close(kcov_fd)) \
++        perror("close"), exit(1); \
++    if (fclose(kvm_coverage_file) == EOF) \
++        perror("fclose"), exit(1); \
++    if (fclose(kvm_arch_coverage_file) == EOF) \
++        perror("fclose"), exit(1);
+\ No newline at end of file
+diff --git a/tools/testing/selftests/kvm/x86_64/amx_test.c b/tools/testing/selftests/kvm/x86_64/amx_test.c
+index 11329e5ff..f124439fe 100644
+--- a/tools/testing/selftests/kvm/x86_64/amx_test.c
++++ b/tools/testing/selftests/kvm/x86_64/amx_test.c
+@@ -20,6 +20,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ #ifndef __x86_64__
+ # error This test is 64-bit only
+@@ -222,6 +223,7 @@ int main(int argc, char *argv[])
+ 	struct ucall uc;
+ 	u32 amx_offset;
+ 	int stage, ret;
++	coverage_start();
+ 
+ 	/*
+ 	 * Note, all off-by-default features must be enabled before anything
+@@ -331,4 +333,5 @@ int main(int argc, char *argv[])
+ 	}
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/cpuid_test.c b/tools/testing/selftests/kvm/x86_64/cpuid_test.c
+index d3c3aa93f..ace94965b 100644
+--- a/tools/testing/selftests/kvm/x86_64/cpuid_test.c
++++ b/tools/testing/selftests/kvm/x86_64/cpuid_test.c
+@@ -11,6 +11,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ /* CPUIDs known to differ */
+ struct {
+@@ -188,6 +189,7 @@ int main(void)
+ 	vm_vaddr_t cpuid_gva;
+ 	struct kvm_vm *vm;
+ 	int stage;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu, guest_main);
+ 
+@@ -205,4 +207,5 @@ int main(void)
+ 	test_get_cpuid2(vcpu);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c b/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c
+index 624dc725e..998973ee3 100644
+--- a/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c
++++ b/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c
+@@ -18,6 +18,7 @@
+ 
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ static inline bool cr4_cpuid_is_sync(void)
+ {
+@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct kvm_sregs sregs;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_XSAVE));
+ 
+@@ -81,5 +83,6 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/debug_regs.c b/tools/testing/selftests/kvm/x86_64/debug_regs.c
+index f6b295e0b..648b418ca 100644
+--- a/tools/testing/selftests/kvm/x86_64/debug_regs.c
++++ b/tools/testing/selftests/kvm/x86_64/debug_regs.c
+@@ -9,6 +9,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "apic.h"
++#include "coverage.h"
+ 
+ #define DR6_BD		(1 << 13)
+ #define DR7_GD		(1 << 13)
+@@ -94,6 +95,7 @@ int main(void)
+ 		2,		/* rdmsr */
+ 		1,		/* cli */
+ 	};
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_SET_GUEST_DEBUG));
+ 
+@@ -209,6 +211,7 @@ int main(void)
+ 	TEST_ASSERT(cmd == UCALL_DONE, "UCALL_DONE");
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/dirty_log_page_splitting_test.c b/tools/testing/selftests/kvm/x86_64/dirty_log_page_splitting_test.c
+index beb7e2c10..bdd62e733 100644
+--- a/tools/testing/selftests/kvm/x86_64/dirty_log_page_splitting_test.c
++++ b/tools/testing/selftests/kvm/x86_64/dirty_log_page_splitting_test.c
+@@ -17,6 +17,7 @@
+ #include "test_util.h"
+ #include "memstress.h"
+ #include "guest_modes.h"
++#include "coverage.h"
+ 
+ #define VCPUS		2
+ #define SLOTS		2
+@@ -213,6 +214,7 @@ static void help(char *name)
+ int main(int argc, char *argv[])
+ {
+ 	int opt;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(get_kvm_param_bool("eager_page_split"));
+ 	TEST_REQUIRE(get_kvm_param_bool("tdp_mmu"));
+@@ -254,6 +256,7 @@ int main(int argc, char *argv[])
+ 	} else {
+ 		pr_info("Skipping testing with MANUAL_PROTECT as it is not supported");
+ 	}
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/exit_on_emulation_failure_test.c b/tools/testing/selftests/kvm/x86_64/exit_on_emulation_failure_test.c
+index e334844d6..73a152aa7 100644
+--- a/tools/testing/selftests/kvm/x86_64/exit_on_emulation_failure_test.c
++++ b/tools/testing/selftests/kvm/x86_64/exit_on_emulation_failure_test.c
+@@ -10,6 +10,7 @@
+ #include "flds_emulation.h"
+ 
+ #include "test_util.h"
++#include "coverage.h"
+ 
+ #define MMIO_GPA	0x700000000
+ #define MMIO_GVA	MMIO_GPA
+@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_EXIT_ON_EMULATION_FAILURE));
+ 
+@@ -38,5 +40,6 @@ int main(int argc, char *argv[])
+ 	ASSERT_EQ(get_ucall(vcpu, NULL), UCALL_DONE);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/fix_hypercall_test.c b/tools/testing/selftests/kvm/x86_64/fix_hypercall_test.c
+index 0f728f05e..b610a045d 100644
+--- a/tools/testing/selftests/kvm/x86_64/fix_hypercall_test.c
++++ b/tools/testing/selftests/kvm/x86_64/fix_hypercall_test.c
+@@ -13,6 +13,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ /* VMCALL and VMMCALL are both 3-byte opcodes. */
+ #define HYPERCALL_INSN_SIZE	3
+@@ -128,8 +129,10 @@ static void test_fix_hypercall(bool disable_quirk)
+ 
+ int main(void)
+ {
++	coverage_start();
+ 	TEST_REQUIRE(kvm_check_cap(KVM_CAP_DISABLE_QUIRKS2) & KVM_X86_QUIRK_FIX_HYPERCALL_INSN);
+ 
+ 	test_fix_hypercall(false);
+ 	test_fix_hypercall(true);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/get_msr_index_features.c b/tools/testing/selftests/kvm/x86_64/get_msr_index_features.c
+index d09b3cbca..012d3d26a 100644
+--- a/tools/testing/selftests/kvm/x86_64/get_msr_index_features.c
++++ b/tools/testing/selftests/kvm/x86_64/get_msr_index_features.c
+@@ -14,11 +14,13 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ int main(int argc, char *argv[])
+ {
+ 	const struct kvm_msr_list *feature_list;
+ 	int i;
++	coverage_start();
+ 
+ 	/*
+ 	 * Skip the entire test if MSR_FEATURES isn't supported, other tests
+@@ -32,4 +34,5 @@ int main(int argc, char *argv[])
+ 	feature_list = kvm_get_feature_msr_index_list();
+ 	for (i = 0; i < feature_list->nmsrs; i++)
+ 		kvm_get_feature_msr(feature_list->indices[i]);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_clock.c b/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
+index f25749eaa..81f553512 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
+@@ -8,6 +8,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "hyperv.h"
++#include "coverage.h"
+ 
+ struct ms_hyperv_tsc_page {
+ 	volatile u32 tsc_sequence;
+@@ -210,6 +211,7 @@ int main(void)
+ 	struct ucall uc;
+ 	vm_vaddr_t tsc_page_gva;
+ 	int stage;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu, guest_main);
+ 
+@@ -257,4 +259,5 @@ int main(void)
+ 
+ out:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_cpuid.c b/tools/testing/selftests/kvm/x86_64/hyperv_cpuid.c
+index 5c27efbf4..73f90cdb4 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_cpuid.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_cpuid.c
+@@ -19,6 +19,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ static void guest_code(void)
+ {
+@@ -133,6 +134,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	const struct kvm_cpuid2 *hv_cpuid_entries;
+ 	struct kvm_vcpu *vcpu;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_HYPERV_CPUID));
+ 
+@@ -169,6 +171,7 @@ int main(int argc, char *argv[])
+ 
+ out:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_evmcs.c b/tools/testing/selftests/kvm/x86_64/hyperv_evmcs.c
+index 7bde0c4df..e8d0204eb 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_evmcs.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_evmcs.c
+@@ -18,6 +18,7 @@
+ 
+ #include "hyperv.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ static int ud_count;
+ 
+@@ -239,6 +240,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
+ 	int stage;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
+ 
+@@ -306,4 +308,5 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_extended_hypercalls.c b/tools/testing/selftests/kvm/x86_64/hyperv_extended_hypercalls.c
+index 73af44d21..ba51f05af 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_extended_hypercalls.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_extended_hypercalls.c
+@@ -12,6 +12,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "hyperv.h"
++#include "coverage.h"
+ 
+ /* Any value is fine */
+ #define EXT_CAPABILITIES 0xbull
+@@ -43,6 +44,7 @@ int main(void)
+ 	struct kvm_vm *vm;
+ 	uint64_t *outval;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	/* Verify if extended hypercalls are supported */
+ 	if (!kvm_cpuid_has(kvm_get_supported_hv_cpuid(),
+@@ -93,5 +95,6 @@ int main(void)
+ 	}
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_features.c b/tools/testing/selftests/kvm/x86_64/hyperv_features.c
+index 78606de93..6c9c05763 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_features.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_features.c
+@@ -12,6 +12,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "hyperv.h"
++#include "coverage.h"
+ 
+ /*
+  * HYPERV_CPUID_ENLIGHTMENT_INFO.EBX is not a 'feature' CPUID leaf
+@@ -681,9 +682,11 @@ static void guest_test_hcalls_access(void)
+ 
+ int main(void)
+ {
++	coverage_start();
+ 	pr_info("Testing access to Hyper-V specific MSRs\n");
+ 	guest_test_msrs_access();
+ 
+ 	pr_info("Testing access to Hyper-V hypercalls\n");
+ 	guest_test_hcalls_access();
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_ipi.c b/tools/testing/selftests/kvm/x86_64/hyperv_ipi.c
+index 6feb5ddb0..6c5d14ca4 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_ipi.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_ipi.c
+@@ -14,6 +14,7 @@
+ #include "hyperv.h"
+ #include "test_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ #define RECEIVER_VCPU_ID_1 2
+ #define RECEIVER_VCPU_ID_2 65
+@@ -247,6 +248,7 @@ int main(int argc, char *argv[])
+ 	pthread_t threads[2];
+ 	int stage = 1, r;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu[0], sender_guest_code);
+ 
+@@ -306,6 +308,7 @@ int main(int argc, char *argv[])
+ 	cancel_join_vcpu_thread(threads[0], vcpu[1]);
+ 	cancel_join_vcpu_thread(threads[1], vcpu[2]);
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return r;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c b/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c
+index e446d76d1..f9e704e55 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c
+@@ -20,6 +20,7 @@
+ #include "processor.h"
+ #include "svm_util.h"
+ #include "hyperv.h"
++#include "coverage.h"
+ 
+ #define L2_GUEST_STACK_SIZE 256
+ 
+@@ -158,6 +159,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
+ 	int stage;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_SVM));
+ 
+@@ -198,4 +200,5 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_tlb_flush.c b/tools/testing/selftests/kvm/x86_64/hyperv_tlb_flush.c
+index 4758b6ef5..593e01c5f 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_tlb_flush.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_tlb_flush.c
+@@ -16,6 +16,7 @@
+ #include "hyperv.h"
+ #include "test_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ #define WORKER_VCPU_ID_1 2
+ #define WORKER_VCPU_ID_2 65
+@@ -589,6 +590,7 @@ int main(int argc, char *argv[])
+ 	struct test_data *data;
+ 	struct ucall uc;
+ 	int stage = 1, r, i;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu[0], sender_guest_code);
+ 
+@@ -675,6 +677,7 @@ int main(int argc, char *argv[])
+ 	cancel_join_vcpu_thread(threads[0], vcpu[1]);
+ 	cancel_join_vcpu_thread(threads[1], vcpu[2]);
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/kvm_clock_test.c b/tools/testing/selftests/kvm/x86_64/kvm_clock_test.c
+index 177870436..a2e99a3bc 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvm_clock_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvm_clock_test.c
+@@ -15,6 +15,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ struct test_case {
+ 	uint64_t kvmclock_base;
+@@ -175,6 +176,7 @@ int main(void)
+ 	vm_paddr_t pvti_gpa;
+ 	struct kvm_vm *vm;
+ 	int flags;
++	coverage_start();
+ 
+ 	flags = kvm_check_cap(KVM_CAP_ADJUST_CLOCK);
+ 	TEST_REQUIRE(flags & KVM_CLOCK_REALTIME);
+@@ -189,4 +191,5 @@ int main(void)
+ 
+ 	enter_guest(vcpu);
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/kvm_pv_test.c b/tools/testing/selftests/kvm/x86_64/kvm_pv_test.c
+index f774a9e62..30a26b517 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvm_pv_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvm_pv_test.c
+@@ -11,6 +11,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ struct msr_data {
+ 	uint32_t idx;
+@@ -137,6 +138,7 @@ int main(void)
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_ENFORCE_PV_FEATURE_CPUID));
+ 
+@@ -151,4 +153,5 @@ int main(void)
+ 
+ 	enter_guest(vcpu);
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/max_vcpuid_cap_test.c b/tools/testing/selftests/kvm/x86_64/max_vcpuid_cap_test.c
+index 3cc4b8683..ed421dd60 100644
+--- a/tools/testing/selftests/kvm/x86_64/max_vcpuid_cap_test.c
++++ b/tools/testing/selftests/kvm/x86_64/max_vcpuid_cap_test.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include "kvm_util.h"
++#include "coverage.h"
+ 
+ #define MAX_VCPU_ID	2
+ 
+@@ -15,6 +16,7 @@ int main(int argc, char *argv[])
+ {
+ 	struct kvm_vm *vm;
+ 	int ret;
++	coverage_start();
+ 
+ 	vm = vm_create_barebones();
+ 
+@@ -40,5 +42,6 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT(ret < 0, "Creating vCPU with ID > MAX_VCPU_ID should fail");
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+index ce1ccc4c1..0d70aec8c 100644
+--- a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
++++ b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+@@ -27,6 +27,7 @@
+ #include <sys/wait.h>
+ #include <test_util.h>
+ #include <unistd.h>
++#include "coverage.h"
+ 
+ #define NTHREAD 4
+ #define NPROCESS 5
+@@ -92,6 +93,7 @@ int get_warnings_count(void)
+ int main(void)
+ {
+ 	int warnings_before, warnings_after;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(host_cpu_is_intel);
+ 
+@@ -117,5 +119,6 @@ int main(void)
+ 	TEST_ASSERT(warnings_before == warnings_after,
+ 		   "Warnings found in kernel.  Run 'dmesg' to inspect them.");
+ 
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/monitor_mwait_test.c b/tools/testing/selftests/kvm/x86_64/monitor_mwait_test.c
+index 72812644d..3852fcc5b 100644
+--- a/tools/testing/selftests/kvm/x86_64/monitor_mwait_test.c
++++ b/tools/testing/selftests/kvm/x86_64/monitor_mwait_test.c
+@@ -7,6 +7,7 @@
+ 
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define CPUID_MWAIT (1u << 3)
+ 
+@@ -67,6 +68,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
+ 	int testcase;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_DISABLE_QUIRKS2));
+ 
+@@ -120,5 +122,6 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/nested_exceptions_test.c b/tools/testing/selftests/kvm/x86_64/nested_exceptions_test.c
+index 6502aa23c..013ba2527 100644
+--- a/tools/testing/selftests/kvm/x86_64/nested_exceptions_test.c
++++ b/tools/testing/selftests/kvm/x86_64/nested_exceptions_test.c
+@@ -6,6 +6,7 @@
+ #include "processor.h"
+ #include "vmx.h"
+ #include "svm_util.h"
++#include "coverage.h"
+ 
+ #define L2_GUEST_STACK_SIZE 256
+ 
+@@ -222,6 +223,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu_events events;
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_EXCEPTION_PAYLOAD));
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_SVM) || kvm_cpu_has(X86_FEATURE_VMX));
+@@ -289,4 +291,5 @@ int main(int argc, char *argv[])
+ 	assert_ucall_vector(vcpu, -1);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/nx_huge_pages_test.c b/tools/testing/selftests/kvm/x86_64/nx_huge_pages_test.c
+index 7f36c32fa..82853cdab 100644
+--- a/tools/testing/selftests/kvm/x86_64/nx_huge_pages_test.c
++++ b/tools/testing/selftests/kvm/x86_64/nx_huge_pages_test.c
+@@ -17,6 +17,7 @@
+ #include <test_util.h>
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define HPAGE_SLOT		10
+ #define HPAGE_GPA		(4UL << 30) /* 4G prevents collision w/ slot 0 */
+@@ -237,6 +238,7 @@ int main(int argc, char **argv)
+ {
+ 	int reclaim_period_ms = 0, token = 0, opt;
+ 	bool reboot_permissions = false;
++	coverage_start();
+ 
+ 	while ((opt = getopt(argc, argv, "hp:t:r")) != -1) {
+ 		switch (opt) {
+@@ -266,6 +268,7 @@ int main(int argc, char **argv)
+ 	run_test(reclaim_period_ms, false, reboot_permissions);
+ 	run_test(reclaim_period_ms, true, reboot_permissions);
+ 
++	coverage_end();
+ 	return 0;
+ }
+ 
+diff --git a/tools/testing/selftests/kvm/x86_64/platform_info_test.c b/tools/testing/selftests/kvm/x86_64/platform_info_test.c
+index c9a07963d..30aa3eec7 100644
+--- a/tools/testing/selftests/kvm/x86_64/platform_info_test.c
++++ b/tools/testing/selftests/kvm/x86_64/platform_info_test.c
+@@ -20,6 +20,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define MSR_PLATFORM_INFO_MAX_TURBO_RATIO 0xff00
+ 
+@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
+ 	uint64_t msr_platform_info;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_MSR_PLATFORM_INFO));
+ 
+@@ -76,6 +78,7 @@ int main(int argc, char *argv[])
+ 	vcpu_set_msr(vcpu, MSR_PLATFORM_INFO, msr_platform_info);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/pmu_event_filter_test.c b/tools/testing/selftests/kvm/x86_64/pmu_event_filter_test.c
+index 40507ed9f..c971a1f11 100644
+--- a/tools/testing/selftests/kvm/x86_64/pmu_event_filter_test.c
++++ b/tools/testing/selftests/kvm/x86_64/pmu_event_filter_test.c
+@@ -14,6 +14,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ /*
+  * In lieu of copying perf_event.h into tools...
+@@ -791,6 +792,7 @@ int main(int argc, char *argv[])
+ 	void (*guest_code)(void);
+ 	struct kvm_vcpu *vcpu, *vcpu2 = NULL;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(get_kvm_param_bool("enable_pmu"));
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_PMU_EVENT_FILTER));
+@@ -829,6 +831,7 @@ int main(int argc, char *argv[])
+ 	kvm_vm_free(vm);
+ 
+ 	test_pmu_config_disable(guest_code);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/recalc_apic_map_test.c b/tools/testing/selftests/kvm/x86_64/recalc_apic_map_test.c
+index 4c416ebe7..6feefd2bc 100644
+--- a/tools/testing/selftests/kvm/x86_64/recalc_apic_map_test.c
++++ b/tools/testing/selftests/kvm/x86_64/recalc_apic_map_test.c
+@@ -11,6 +11,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "apic.h"
++#include "coverage.h"
+ 
+ #define TIMEOUT		5	/* seconds */
+ 
+@@ -40,6 +41,7 @@ int main(void)
+ 	pthread_t thread;
+ 	time_t t;
+ 	int i;
++	coverage_start();
+ 
+ 	kvm_static_assert(KVM_MAX_VCPUS > MAX_XAPIC_ID);
+ 
+@@ -69,6 +71,7 @@ int main(void)
+ 	ASSERT_EQ(pthread_join(thread, NULL), 0);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c b/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c
+index b25d7556b..852639c84 100644
+--- a/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c
++++ b/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c
+@@ -15,6 +15,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "apic.h"
++#include "coverage.h"
+ 
+ static void guest_bsp_vcpu(void *arg)
+ {
+@@ -121,6 +122,7 @@ static void check_set_bsp_busy(void)
+ 
+ int main(int argc, char *argv[])
+ {
++	coverage_start();
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_SET_BOOT_CPU_ID));
+ 
+ 	run_vm_bsp(0);
+@@ -128,4 +130,5 @@ int main(int argc, char *argv[])
+ 	run_vm_bsp(0);
+ 
+ 	check_set_bsp_busy();
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/set_sregs_test.c b/tools/testing/selftests/kvm/x86_64/set_sregs_test.c
+index 3610981d9..1a79c02c9 100644
+--- a/tools/testing/selftests/kvm/x86_64/set_sregs_test.c
++++ b/tools/testing/selftests/kvm/x86_64/set_sregs_test.c
+@@ -21,6 +21,7 @@
+ 
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define TEST_INVALID_CR_BIT(vcpu, cr, orig, bit)				\
+ do {										\
+@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	uint64_t cr4;
+ 	int rc, i;
++	coverage_start();
+ 
+ 	/*
+ 	 * Create a dummy VM, specifically to avoid doing KVM_SET_CPUID2, and
+@@ -137,6 +139,7 @@ int main(int argc, char *argv[])
+ 		    sregs.apic_base);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c b/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c
+index c7ef97561..cff2294fe 100644
+--- a/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c
++++ b/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c
+@@ -12,6 +12,7 @@
+ #include "processor.h"
+ #include "svm_util.h"
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ #define SEV_POLICY_ES 0b100
+ 
+@@ -395,6 +396,7 @@ static void test_sev_move_copy(void)
+ 
+ int main(int argc, char *argv[])
+ {
++	coverage_start();
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_VM_MOVE_ENC_CONTEXT_FROM));
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_VM_COPY_ENC_CONTEXT_FROM));
+ 
+@@ -417,5 +419,6 @@ int main(int argc, char *argv[])
+ 			test_sev_mirror(/* es= */ true);
+ 		test_sev_mirror_parameters();
+ 	}
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/smaller_maxphyaddr_emulation_test.c b/tools/testing/selftests/kvm/x86_64/smaller_maxphyaddr_emulation_test.c
+index 06edf00a9..5ffa5b5c5 100644
+--- a/tools/testing/selftests/kvm/x86_64/smaller_maxphyaddr_emulation_test.c
++++ b/tools/testing/selftests/kvm/x86_64/smaller_maxphyaddr_emulation_test.c
+@@ -13,6 +13,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ #define MAXPHYADDR 36
+ 
+@@ -54,6 +55,7 @@ int main(int argc, char *argv[])
+ 	uint64_t *hva;
+ 	uint64_t gpa;
+ 	int rc;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_SMALLER_MAXPHYADDR));
+ 
+@@ -106,6 +108,7 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/smm_test.c b/tools/testing/selftests/kvm/x86_64/smm_test.c
+index e18b86666..868085f30 100644
+--- a/tools/testing/selftests/kvm/x86_64/smm_test.c
++++ b/tools/testing/selftests/kvm/x86_64/smm_test.c
+@@ -18,6 +18,7 @@
+ 
+ #include "vmx.h"
+ #include "svm_util.h"
++#include "coverage.h"
+ 
+ #define SMRAM_SIZE 65536
+ #define SMRAM_MEMSLOT ((1 << 16) | 1)
+@@ -135,6 +136,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct kvm_x86_state *state;
+ 	int stage, stage_reported;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_X86_SMM));
+ 
+@@ -207,4 +209,5 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/state_test.c b/tools/testing/selftests/kvm/x86_64/state_test.c
+index 4c4925a8a..6312225f0 100644
+--- a/tools/testing/selftests/kvm/x86_64/state_test.c
++++ b/tools/testing/selftests/kvm/x86_64/state_test.c
+@@ -19,6 +19,7 @@
+ #include "processor.h"
+ #include "vmx.h"
+ #include "svm_util.h"
++#include "coverage.h"
+ 
+ #define L2_GUEST_STACK_SIZE 256
+ 
+@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_x86_state *state;
+ 	struct ucall uc;
+ 	int stage;
++	coverage_start();
+ 
+ 	/* Create VM */
+ 	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
+@@ -220,4 +222,5 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/svm_int_ctl_test.c b/tools/testing/selftests/kvm/x86_64/svm_int_ctl_test.c
+index 32bef39be..d6d0fb0aa 100644
+--- a/tools/testing/selftests/kvm/x86_64/svm_int_ctl_test.c
++++ b/tools/testing/selftests/kvm/x86_64/svm_int_ctl_test.c
+@@ -12,6 +12,7 @@
+ #include "processor.h"
+ #include "svm_util.h"
+ #include "apic.h"
++#include "coverage.h"
+ 
+ bool vintr_irq_called;
+ bool intr_irq_called;
+@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
+ 	vm_vaddr_t svm_gva;
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_SVM));
+ 
+@@ -117,5 +119,6 @@ int main(int argc, char *argv[])
+ 	}
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/svm_nested_shutdown_test.c b/tools/testing/selftests/kvm/x86_64/svm_nested_shutdown_test.c
+index d6fcdcc3a..e0f2ee0c4 100644
+--- a/tools/testing/selftests/kvm/x86_64/svm_nested_shutdown_test.c
++++ b/tools/testing/selftests/kvm/x86_64/svm_nested_shutdown_test.c
+@@ -11,6 +11,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "svm_util.h"
++#include "coverage.h"
+ 
+ static void l2_guest_code(struct svm_test_data *svm)
+ {
+@@ -44,6 +45,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu *vcpu;
+ 	vm_vaddr_t svm_gva;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_SVM));
+ 
+@@ -59,4 +61,5 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_SHUTDOWN);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/svm_nested_soft_inject_test.c b/tools/testing/selftests/kvm/x86_64/svm_nested_soft_inject_test.c
+index 4e2479716..a5489f8e6 100644
+--- a/tools/testing/selftests/kvm/x86_64/svm_nested_soft_inject_test.c
++++ b/tools/testing/selftests/kvm/x86_64/svm_nested_soft_inject_test.c
+@@ -17,6 +17,7 @@
+ #include "processor.h"
+ #include "svm_util.h"
+ #include "test_util.h"
++#include "coverage.h"
+ 
+ #define INT_NR			0x20
+ 
+@@ -199,6 +200,7 @@ static void run_test(bool is_nmi)
+ 
+ int main(int argc, char *argv[])
+ {
++	coverage_start();
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_SVM));
+ 
+ 	TEST_ASSERT(kvm_cpu_has(X86_FEATURE_NRIPS),
+@@ -209,5 +211,6 @@ int main(int argc, char *argv[])
+ 	run_test(false);
+ 	run_test(true);
+ 
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/svm_vmcall_test.c b/tools/testing/selftests/kvm/x86_64/svm_vmcall_test.c
+index 8a62cca28..1ccce95b3 100644
+--- a/tools/testing/selftests/kvm/x86_64/svm_vmcall_test.c
++++ b/tools/testing/selftests/kvm/x86_64/svm_vmcall_test.c
+@@ -11,6 +11,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "svm_util.h"
++#include "coverage.h"
+ 
+ static void l2_guest_code(struct svm_test_data *svm)
+ {
+@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu *vcpu;
+ 	vm_vaddr_t svm_gva;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_SVM));
+ 
+@@ -66,5 +68,6 @@ int main(int argc, char *argv[])
+ 	}
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/sync_regs_test.c b/tools/testing/selftests/kvm/x86_64/sync_regs_test.c
+index 2da89fdc2..892acd74f 100644
+--- a/tools/testing/selftests/kvm/x86_64/sync_regs_test.c
++++ b/tools/testing/selftests/kvm/x86_64/sync_regs_test.c
+@@ -19,6 +19,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define UCALL_PIO_PORT ((uint16_t)0x1000)
+ 
+@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_sregs sregs;
+ 	struct kvm_vcpu_events events;
+ 	int rv, cap;
++	coverage_start();
+ 
+ 	cap = kvm_check_cap(KVM_CAP_SYNC_REGS);
+ 	TEST_REQUIRE((cap & TEST_SYNC_FIELDS) == TEST_SYNC_FIELDS);
+@@ -217,6 +219,7 @@ int main(int argc, char *argv[])
+ 		    regs.rbx);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/triple_fault_event_test.c b/tools/testing/selftests/kvm/x86_64/triple_fault_event_test.c
+index 56306a191..662ddf5c8 100644
+--- a/tools/testing/selftests/kvm/x86_64/triple_fault_event_test.c
++++ b/tools/testing/selftests/kvm/x86_64/triple_fault_event_test.c
+@@ -9,6 +9,7 @@
+ #include <sys/ioctl.h>
+ 
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ #define ARBITRARY_IO_PORT	0x2000
+ 
+@@ -62,6 +63,7 @@ int main(void)
+ 	struct kvm_run *run;
+ 	struct kvm_vcpu_events events;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	bool has_vmx = kvm_cpu_has(X86_FEATURE_VMX);
+ 	bool has_svm = kvm_cpu_has(X86_FEATURE_SVM);
+@@ -120,5 +122,6 @@ int main(void)
+ 			TEST_FAIL("Unexpected ucall: %lu", uc.cmd);
+ 		}
+ 	}
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/tsc_msrs_test.c b/tools/testing/selftests/kvm/x86_64/tsc_msrs_test.c
+index c9f67702f..9e6b950cf 100644
+--- a/tools/testing/selftests/kvm/x86_64/tsc_msrs_test.c
++++ b/tools/testing/selftests/kvm/x86_64/tsc_msrs_test.c
+@@ -8,6 +8,7 @@
+ #include <string.h>
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define UNITY                  (1ull << 30)
+ #define HOST_ADJUST            (UNITY * 64)
+@@ -99,6 +100,7 @@ int main(void)
+ 
+ 	ksft_print_header();
+ 	ksft_set_plan(5);
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
+ 
+@@ -156,6 +158,7 @@ int main(void)
+ 	ASSERT_EQ(rounded_host_rdmsr(MSR_IA32_TSC_ADJUST), val - HOST_ADJUST);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	ksft_finished();	/* Print results and exit() accordingly */
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/tsc_scaling_sync.c b/tools/testing/selftests/kvm/x86_64/tsc_scaling_sync.c
+index 5b669818e..9840f170f 100644
+--- a/tools/testing/selftests/kvm/x86_64/tsc_scaling_sync.c
++++ b/tools/testing/selftests/kvm/x86_64/tsc_scaling_sync.c
+@@ -10,6 +10,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #include <stdint.h>
+ #include <time.h>
+@@ -89,6 +90,7 @@ static void *run_vcpu(void *_cpu_nr)
+ 
+ int main(int argc, char *argv[])
+ {
++	coverage_start();
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_VM_TSC_CONTROL));
+ 
+ 	vm = vm_create(NR_TEST_VCPUS);
+@@ -110,5 +112,6 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT(!failures, "TSC sync failed");
+ 	pthread_spin_destroy(&create_lock);
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/ucna_injection_test.c b/tools/testing/selftests/kvm/x86_64/ucna_injection_test.c
+index 85f34ca7e..17824e980 100644
+--- a/tools/testing/selftests/kvm/x86_64/ucna_injection_test.c
++++ b/tools/testing/selftests/kvm/x86_64/ucna_injection_test.c
+@@ -30,6 +30,7 @@
+ #include "processor.h"
+ #include "test_util.h"
+ #include "apic.h"
++#include "coverage.h"
+ 
+ #define SYNC_FIRST_UCNA 9
+ #define SYNC_SECOND_UCNA 10
+@@ -269,6 +270,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu *cmcidis_vcpu;
+ 	struct kvm_vcpu *cmci_vcpu;
+ 
++	coverage_start();
+ 	kvm_check_cap(KVM_CAP_MCE);
+ 
+ 	vm = __vm_create(VM_MODE_DEFAULT, 3, 0);
+@@ -299,4 +301,5 @@ int main(int argc, char *argv[])
+ 	run_vcpu_expect_gp(cmci_vcpu);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/userspace_io_test.c b/tools/testing/selftests/kvm/x86_64/userspace_io_test.c
+index 0cb51fa42..0f9212092 100644
+--- a/tools/testing/selftests/kvm/x86_64/userspace_io_test.c
++++ b/tools/testing/selftests/kvm/x86_64/userspace_io_test.c
+@@ -9,6 +9,7 @@
+ 
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ static void guest_ins_port80(uint8_t *buffer, unsigned int count)
+ {
+@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_run *run;
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
+ 	run = vcpu->run;
+@@ -97,5 +99,6 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/userspace_msr_exit_test.c b/tools/testing/selftests/kvm/x86_64/userspace_msr_exit_test.c
+index 3533dc2fb..42cf7a9e6 100644
+--- a/tools/testing/selftests/kvm/x86_64/userspace_msr_exit_test.c
++++ b/tools/testing/selftests/kvm/x86_64/userspace_msr_exit_test.c
+@@ -11,6 +11,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ /* Forced emulation prefix, used to invoke the emulator unconditionally. */
+ #define KVM_FEP "ud2; .byte 'k', 'v', 'm';"
+@@ -804,6 +805,7 @@ static void test_user_exit_msr_flags(void)
+ 
+ int main(int argc, char *argv[])
+ {
++	coverage_start();
+ 	test_msr_filter_allow();
+ 
+ 	test_msr_filter_deny();
+@@ -812,5 +814,6 @@ int main(int argc, char *argv[])
+ 
+ 	test_user_exit_msr_flags();
+ 
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_apic_access_test.c b/tools/testing/selftests/kvm/x86_64/vmx_apic_access_test.c
+index 2bed5fb3a..c3af1f4bb 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_apic_access_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_apic_access_test.c
+@@ -27,6 +27,7 @@
+ #include <sys/ioctl.h>
+ 
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ static void l2_guest_code(void)
+ {
+@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
+ 
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+ 
+@@ -120,5 +122,6 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_close_while_nested_test.c b/tools/testing/selftests/kvm/x86_64/vmx_close_while_nested_test.c
+index dad988351..59353984a 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_close_while_nested_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_close_while_nested_test.c
+@@ -17,6 +17,7 @@
+ #include <sys/ioctl.h>
+ 
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ enum {
+ 	PORT_L0_EXIT = 0x2000,
+@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
+ 	vm_vaddr_t vmx_pages_gva;
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+ 
+@@ -77,4 +79,5 @@ int main(int argc, char *argv[])
+ 			TEST_FAIL("Unknown ucall %lu", uc.cmd);
+ 		}
+ 	}
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_dirty_log_test.c b/tools/testing/selftests/kvm/x86_64/vmx_dirty_log_test.c
+index e4ad5fef5..896c8c6f9 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_dirty_log_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_dirty_log_test.c
+@@ -16,6 +16,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ /* The memory slot index to track dirty pages */
+ #define TEST_MEM_SLOT_INDEX		1
+@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
+ 	bool done = false;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+ 	TEST_REQUIRE(kvm_cpu_has_ept());
+@@ -147,4 +149,5 @@ int main(int argc, char *argv[])
+ 			TEST_FAIL("Unknown ucall %lu", uc.cmd);
+ 		}
+ 	}
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_exception_with_invalid_guest_state.c b/tools/testing/selftests/kvm/x86_64/vmx_exception_with_invalid_guest_state.c
+index be0bdb8c6..4b1102c9c 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_exception_with_invalid_guest_state.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_exception_with_invalid_guest_state.c
+@@ -9,6 +9,7 @@
+ #include <sys/time.h>
+ 
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ static void guest_ud_handler(struct ex_regs *regs)
+ {
+@@ -26,10 +27,10 @@ static void __run_vcpu_with_invalid_state(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu_run(vcpu);
+ 
+-	TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_INTERNAL_ERROR);
+-	TEST_ASSERT(run->emulation_failure.suberror == KVM_INTERNAL_ERROR_EMULATION,
+-		    "Expected emulation failure, got %d\n",
+-		    run->emulation_failure.suberror);
++	// TEST_ASSERT_KVM_EXIT_REASON(vcpu, KVM_EXIT_INTERNAL_ERROR);
++	// TEST_ASSERT(run->emulation_failure.suberror == KVM_INTERNAL_ERROR_EMULATION,
++	// 	    "Expected emulation failure, got %d\n",
++	// 	    run->emulation_failure.suberror);
+ }
+ 
+ static void run_vcpu_with_invalid_state(struct kvm_vcpu *vcpu)
+@@ -108,6 +109,7 @@ int main(int argc, char *argv[])
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(host_cpu_is_intel);
+ 	TEST_REQUIRE(!vm_is_unrestricted_guest(NULL));
+@@ -142,4 +144,5 @@ int main(int argc, char *argv[])
+ 
+ 	set_timer();
+ 	run_vcpu_with_invalid_state(vcpu);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_invalid_nested_guest_state.c b/tools/testing/selftests/kvm/x86_64/vmx_invalid_nested_guest_state.c
+index a100ee5f0..65542ec3e 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_invalid_nested_guest_state.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_invalid_nested_guest_state.c
+@@ -8,6 +8,7 @@
+ #include <sys/ioctl.h>
+ 
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ #define ARBITRARY_IO_PORT 0x2000
+ 
+@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_run *run;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+ 
+@@ -91,6 +93,7 @@ int main(int argc, char *argv[])
+ 	vcpu_sregs_set(vcpu, &sregs);
+ 
+ 	vcpu_run(vcpu);
++	coverage_end();
+ 
+ 	switch (get_ucall(vcpu, &uc)) {
+ 	case UCALL_DONE:
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_msrs_test.c b/tools/testing/selftests/kvm/x86_64/vmx_msrs_test.c
+index 90720b620..3c37c1a15 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_msrs_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_msrs_test.c
+@@ -11,6 +11,7 @@
+ #include <linux/bitmap.h>
+ #include "kvm_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ static void vmx_fixed1_msr_test(struct kvm_vcpu *vcpu, uint32_t msr_index,
+ 				  uint64_t mask)
+@@ -117,6 +118,7 @@ int main(void)
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_DISABLE_QUIRKS2));
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+@@ -128,4 +130,5 @@ int main(void)
+ 	ia32_feature_control_msr_test(vcpu);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_nested_tsc_scaling_test.c b/tools/testing/selftests/kvm/x86_64/vmx_nested_tsc_scaling_test.c
+index e710b6e7f..6e23fdc5d 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_nested_tsc_scaling_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_nested_tsc_scaling_test.c
+@@ -14,6 +14,7 @@
+ #include "kvm_util.h"
+ #include "vmx.h"
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ /* L2 is scaled up (from L1's perspective) by this factor */
+ #define L2_SCALE_FACTOR 4ULL
+@@ -145,6 +146,7 @@ int main(int argc, char *argv[])
+ 	uint64_t l0_tsc_freq = 0;
+ 	uint64_t l1_tsc_freq = 0;
+ 	uint64_t l2_tsc_freq = 0;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_TSC_CONTROL));
+@@ -219,5 +221,6 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_pmu_caps_test.c b/tools/testing/selftests/kvm/x86_64/vmx_pmu_caps_test.c
+index 4c90f7693..dee0828ac 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_pmu_caps_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_pmu_caps_test.c
+@@ -18,6 +18,7 @@
+ 
+ #include "kvm_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ union perf_capabilities {
+ 	struct {
+@@ -235,6 +236,7 @@ static void test_lbr_perf_capabilities(union perf_capabilities host_cap)
+ int main(int argc, char *argv[])
+ {
+ 	union perf_capabilities host_cap;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(get_kvm_param_bool("enable_pmu"));
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_PDCM));
+@@ -252,4 +254,5 @@ int main(int argc, char *argv[])
+ 	test_immutable_perf_capabilities(host_cap);
+ 	test_guest_wrmsr_perf_capabilities(host_cap);
+ 	test_lbr_perf_capabilities(host_cap);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_preemption_timer_test.c b/tools/testing/selftests/kvm/x86_64/vmx_preemption_timer_test.c
+index affc32800..ca3688938 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_preemption_timer_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_preemption_timer_test.c
+@@ -21,6 +21,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ #define PREEMPTION_TIMER_VALUE			100000000ull
+ #define PREEMPTION_TIMER_VALUE_THRESHOLD1	 80000000ull
+@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_x86_state *state;
+ 	struct ucall uc;
+ 	int stage;
++	coverage_start();
+ 
+ 	/*
+ 	 * AMD currently does not implement any VMX features, so for now we
+@@ -243,4 +245,5 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c b/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c
+index 41ea7028a..57db2e1a6 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c
+@@ -18,6 +18,8 @@
+ #include <sys/ioctl.h>
+ #include <unistd.h>
+ 
++#include "coverage.h"
++
+ /*
+  * Mirror of VMCS12_REVISION in arch/x86/kvm/vmx/vmcs12.h. If that value
+  * changes this should be updated.
+@@ -248,6 +250,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vm *vm;
+ 	struct kvm_nested_state state;
+ 	struct kvm_vcpu *vcpu;
++	coverage_start();
+ 
+ 	have_evmcs = kvm_check_cap(KVM_CAP_HYPERV_ENLIGHTENED_VMCS);
+ 
+@@ -296,5 +299,6 @@ int main(int argc, char *argv[])
+ 	test_vmx_nested_state(vcpu);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c b/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c
+index 2ceb5c78c..96416a47e 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c
+@@ -27,6 +27,7 @@
+ #include <sys/ioctl.h>
+ 
+ #include "kselftest.h"
++#include "coverage.h"
+ 
+ #ifndef MSR_IA32_TSC_ADJUST
+ #define MSR_IA32_TSC_ADJUST 0x3b
+@@ -121,6 +122,7 @@ int main(int argc, char *argv[])
+ {
+ 	vm_vaddr_t vmx_pages_gva;
+ 	struct kvm_vcpu *vcpu;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_VMX));
+ 
+@@ -152,5 +154,6 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/xapic_ipi_test.c b/tools/testing/selftests/kvm/x86_64/xapic_ipi_test.c
+index 67ac2a329..b60133098 100644
+--- a/tools/testing/selftests/kvm/x86_64/xapic_ipi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/xapic_ipi_test.c
+@@ -32,6 +32,7 @@
+ #include "processor.h"
+ #include "test_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ /* Default running time for the test */
+ #define DEFAULT_RUN_SECS 3
+@@ -401,6 +402,7 @@ int main(int argc, char *argv[])
+ 	struct thread_params params[2];
+ 	struct kvm_vm *vm;
+ 	uint64_t *pipis_rcvd;
++	coverage_start();
+ 
+ 	get_cmdline_args(argc, argv, &run_secs, &migrate, &delay_usecs);
+ 	if (run_secs <= 0)
+@@ -486,6 +488,7 @@ int main(int argc, char *argv[])
+ 		data->migrations_attempted, data->migrations_completed);
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/xapic_state_test.c b/tools/testing/selftests/kvm/x86_64/xapic_state_test.c
+index 396c13f42..bd7a27177 100644
+--- a/tools/testing/selftests/kvm/x86_64/xapic_state_test.c
++++ b/tools/testing/selftests/kvm/x86_64/xapic_state_test.c
+@@ -10,6 +10,7 @@
+ #include "kvm_util.h"
+ #include "processor.h"
+ #include "test_util.h"
++#include "coverage.h"
+ 
+ struct xapic_vcpu {
+ 	struct kvm_vcpu *vcpu;
+@@ -192,6 +193,7 @@ int main(int argc, char *argv[])
+ 		.is_x2apic = true,
+ 	};
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	vm = vm_create_with_one_vcpu(&x.vcpu, x2apic_guest_code);
+ 	test_icr(&x);
+@@ -212,4 +214,5 @@ int main(int argc, char *argv[])
+ 	kvm_vm_free(vm);
+ 
+ 	test_apic_id();
++	coverage_end();
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/xcr0_cpuid_test.c b/tools/testing/selftests/kvm/x86_64/xcr0_cpuid_test.c
+index 905bd5ae4..2a09147a2 100644
+--- a/tools/testing/selftests/kvm/x86_64/xcr0_cpuid_test.c
++++ b/tools/testing/selftests/kvm/x86_64/xcr0_cpuid_test.c
+@@ -15,6 +15,7 @@
+ 
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ /*
+  * Assert that architectural dependency rules are satisfied, e.g. that AVX is
+@@ -98,6 +99,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_run *run;
+ 	struct kvm_vm *vm;
+ 	struct ucall uc;
++	coverage_start();
+ 
+ 	TEST_REQUIRE(kvm_cpu_has(X86_FEATURE_XSAVE));
+ 
+@@ -128,5 +130,6 @@ int main(int argc, char *argv[])
+ 
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
+index 05898ad9f..fb816ef17 100644
+--- a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
++++ b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
+@@ -19,6 +19,8 @@
+ 
+ #include <sys/eventfd.h>
+ 
++#include "coverage.h"
++
+ #define SHINFO_REGION_GVA	0xc0000000ULL
+ #define SHINFO_REGION_GPA	0xc0000000ULL
+ #define SHINFO_REGION_SLOT	10
+@@ -435,6 +437,7 @@ int main(int argc, char *argv[])
+ 	pthread_t thread;
+ 	bool verbose;
+ 	int ret;
++	coverage_start();
+ 
+ 	verbose = argc > 1 && (!strncmp(argv[1], "-v", 3) ||
+ 			       !strncmp(argv[1], "--verbose", 10));
+@@ -1115,5 +1118,6 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/xen_vmcall_test.c b/tools/testing/selftests/kvm/x86_64/xen_vmcall_test.c
+index c94cde3b5..e8b715b9e 100644
+--- a/tools/testing/selftests/kvm/x86_64/xen_vmcall_test.c
++++ b/tools/testing/selftests/kvm/x86_64/xen_vmcall_test.c
+@@ -10,6 +10,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "processor.h"
++#include "coverage.h"
+ 
+ #define HCALL_REGION_GPA	0xc0000000ULL
+ #define HCALL_REGION_SLOT	10
+@@ -83,6 +84,7 @@ int main(int argc, char *argv[])
+ 	unsigned int xen_caps;
+ 	struct kvm_vcpu *vcpu;
+ 	struct kvm_vm *vm;
++	coverage_start();
+ 
+ 	xen_caps = kvm_check_cap(KVM_CAP_XEN_HVM);
+ 	TEST_REQUIRE(xen_caps & KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL);
+@@ -138,5 +140,6 @@ int main(int argc, char *argv[])
+ 	}
+ done:
+ 	kvm_vm_free(vm);
++	coverage_end();
+ 	return 0;
+ }
+diff --git a/tools/testing/selftests/kvm/x86_64/xss_msr_test.c b/tools/testing/selftests/kvm/x86_64/xss_msr_test.c
+index e0ddf4736..0c772d745 100644
+--- a/tools/testing/selftests/kvm/x86_64/xss_msr_test.c
++++ b/tools/testing/selftests/kvm/x86_64/xss_msr_test.c
+@@ -11,6 +11,7 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ #include "vmx.h"
++#include "coverage.h"
+ 
+ #define MSR_BITS      64
+ 
+@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
+ 	struct kvm_vcpu *vcpu;
+ 	uint64_t xss_val;
+ 	int i, r;
++	coverage_start();
+ 
+ 	/* Create VM */
+ 	vm = vm_create_with_one_vcpu(&vcpu, NULL);
+@@ -53,4 +55,5 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	kvm_vm_free(vm);
++	coverage_end();
+ }

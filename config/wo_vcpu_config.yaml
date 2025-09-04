@@ -1,0 +1,19 @@
+program:
+  qemu: ./external/qemu/build/qemu-system-x86_64
+directories:
+  work_dir: ./
+  fuzz_inputs: ./fuzz_inputs
+  coverage_outputs: ./out/kvm_necofuzz_wo_vcpu_config
+  afl_dir: ./external/AFLplusplus/
+  kvm_dir: ./external/linux/arch/x86/kvm
+  linux_source_dir: ./external/linux/
+  syzkaller_linux_source_dir: ./external/linux_syzkaller/
+  xen_dir: ./external/xen/
+  kvm_unit_tests_dir: ./external/kvm-unit-tests/
+fuzzing:
+  vcpu_config: 0
+  vmstate_validator: 1
+  harness: 1
+  coverage_guided: 0
+  target: kvm
+  seed_dir: ./seeds
