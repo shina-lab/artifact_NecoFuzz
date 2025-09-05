@@ -1,5 +1,6 @@
 #include "kvm_flags.h"
 #include <string.h>
+#include <sys/stat.h>
 char* kvm_intel_paramater[] = {
     "allow_smaller_maxphyaddr",
     "emulate_invalid_guest_state",
@@ -240,6 +241,7 @@ void setup_kvm_paramater(char* kvm_param, int size) {
   char** param_flags;
   int flags_size;
   char tmp[512];
+  const char* flag_value;
   if (vendor_id == INTEL) {
     param_flags = kvm_intel_paramater;
     flags_size = sizeof(kvm_intel_paramater) / sizeof(kvm_intel_paramater[0]);

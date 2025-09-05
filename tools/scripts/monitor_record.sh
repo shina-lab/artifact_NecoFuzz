@@ -8,8 +8,9 @@ CURRENT_DIR="$(pwd)"
 # Verify configuration
 check_file "$CONFIG_PATH"
 
+COVERAGE_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < $CONFIG_PATH)
 # Create output directories
-mkdir -p "$CURRENT_DIR"/{cov,out}
+mkdir -p "$COVERAGE_DIR"/{cov,out}
 
 # Function to process coverage file
 process_coverage_file() {
@@ -32,7 +33,7 @@ process_coverage_file() {
         local my_timestamp
         my_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
         # Create CSV file with header if it doesn't exist
-        local csv_file="$CURRENT_DIR/coverage_timeline.csv"
+        local csv_file="$COVERAGE_DIR/coverage_timeline.csv"
         if [[ ! -f "$csv_file" ]]; then
             echo "timestamp,nested_count" > "$csv_file"
         fi
@@ -41,10 +42,10 @@ process_coverage_file() {
 
         # Move coverage data and update latest
         if [[ -f "cov_$file" ]]; then
-            mv "cov_$file" "$CURRENT_DIR/cov/"
+            mv "cov_$file" "$COVERAGE_DIR/cov/"
         fi
-        cp "$output_dir/$file" "$CURRENT_DIR/out/final_coverage"
-        grep nested.c "$CURRENT_DIR/out/final_coverage" > "$CURRENT_DIR/out/final_nested_coverage"
+        cp "$output_dir/$file" "$COVERAGE_DIR/out/final_coverage"
+        grep nested.c "$CURCOVERAGE_DIRENT_DIR/out/final_coverage" > "$COVERAGE_DIR/out/final_nested_coverage"
     else
         echo "Warning: Failed to process $file" >&2
     fi
@@ -54,7 +55,7 @@ process_coverage_file() {
 echo "Processing existing coverage files..."
 for file in kvm_arch*; do
     if [[ -f "$file" ]]; then
-        process_coverage_file "$file" "$CURRENT_DIR/out"
+        process_coverage_file "$file" "$COVERAGE_DIR/out"
     fi
 done
 
@@ -67,7 +68,7 @@ fi
 
 # Monitor for new files
 echo "Monitoring for new coverage files... (Press Ctrl+C to stop)"
-inotifywait -m "$CURRENT_DIR" -e create -e moved_to --format '%w%f %e' 2>/dev/null |
+inotifywait -m "$COVERAGE_DIR" -e create -e moved_to --format '%w%f %e' 2>/dev/null |
     while read filepath event; do
         filename=$(basename "$filepath")
 
@@ -78,6 +79,6 @@ inotifywait -m "$CURRENT_DIR" -e create -e moved_to --format '%w%f %e' 2>/dev/nu
             # Small delay to ensure file is completely written
             sleep 0.5
 
-            process_coverage_file "$filename" "$CURRENT_DIR/out"
+            process_coverage_file "$filename" "$COVERAGE_DIR/out"
         fi
     done
