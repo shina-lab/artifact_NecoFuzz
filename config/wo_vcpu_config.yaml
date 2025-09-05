@@ -9,6 +9,7 @@ directories:
   linux_source_dir: ./external/linux/
   syzkaller_linux_source_dir: ./external/linux_syzkaller/
   xen_dir: ./external/xen/
+  xtf_dir: ./external/xtf/
   kvm_unit_tests_dir: ./external/kvm-unit-tests/
 fuzzing:
   vcpu_config: 0
