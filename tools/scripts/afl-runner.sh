@@ -87,10 +87,13 @@ echo "Reading configuration from: $CONFIG_PATH"
 
 # Read configuration values from YAML
 AFL_DIR=$(read_config '["directories"]["afl_dir"]')
+AFL_DIR=$(realpath "$AFL_DIR")
 WORK_DIR=$(read_config '["directories"]["work_dir"]')
+WORK_DIR=$(realpath "$WORK_DIR")
 TARGET_HYPERVISOR=$(read_config '["fuzzing"]["target"]')
 COVERAGE_GUIDE=$(read_config '["fuzzing"]["coverage_guided"]')
 SEED_DIR=$(read_config '["fuzzing"]["seed_dir"]')
+SEED_DIR=$(realpath "$SEED_DIR")
 
 # Verify AFL installation
 check_file "$AFL_DIR/afl-gcc"
