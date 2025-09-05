@@ -30,8 +30,7 @@ check_file "$CONFIG_PATH"
 
 # Get KVM directory from config
 KVM_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["kvm_dir"])' < "$CONFIG_PATH")
-KVM_DIR=$SCRIPT_DIR/../../$KVM_DIR
-
+KVM_DIR=$(realpath "$KVM_DIR")
 # Detect architecture if not set
 if [[ -z "${arch:-}" ]]; then
     arch=$(uname -m)
