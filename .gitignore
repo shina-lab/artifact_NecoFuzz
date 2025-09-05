@@ -1,9 +1,10 @@
 *
 !*/
 !*.*
+!external/
+!external/**
 *.o
 .config*
-
 kvm-necofuzz/
 xen-necofuzz/
 vbox-necofuzz/
