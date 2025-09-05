@@ -83,6 +83,6 @@ inotifywait -m "$COVERAGE_DIR" -e create -e moved_to --format '%w%f %e' 2>/dev/n
             # Small delay to ensure file is completely written
             sleep 0.5
 
-            process_coverage_file "$file" "$COVERAGE_DIR/out"
+            process_coverage_file "$filepath" "$COVERAGE_DIR/out"
         fi
     done
