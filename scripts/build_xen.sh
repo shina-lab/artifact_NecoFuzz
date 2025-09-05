@@ -37,9 +37,13 @@ export CCACHE_DIR="$HOME/.ccache"
 echo $XEN_DIR
 cd "$XEN_DIR"
 cd ./xen
+rm .config || true
+make defconfig
 echo "CONFIG_LIVEPATCH=n
+CONFIG_XEN_IBT=n
 CONFIG_DEBUG=y
 CONFIG_DEBUG_INFO=y
+CONFIG_UNSUPPORTED=y
 CONFIG_COVERAGE=y" >> .config
 make olddefconfig
 cd ../
@@ -54,6 +58,10 @@ else
     echo "✗ xentools not found. Build may have failed."
     exit 1
 fi
+
+sudo rm -f /etc/ld.so.conf.d/xen.conf || true
+echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/xen.conf
+sudo /sbin/ldconfig
 
 cd "$ORIGINAL_DIR"
 echo "Returned to original directory: $(pwd)"
