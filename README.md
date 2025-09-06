@@ -51,7 +51,7 @@ uname -r
 ### 3. AFL++ Setup
 ```bash
 cd external/AFLplusplus
-make
+make -j $(nproc)
 cd ../..
 ```
 

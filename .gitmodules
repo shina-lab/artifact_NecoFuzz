@@ -17,3 +17,6 @@
 [submodule "external/kvm-unit-tests"]
 	path = external/kvm-unit-tests
 	url = https://github.com/kvm-unit-tests/kvm-unit-tests
+[submodule "external/AFLplusplus"]
+	path = external/AFLplusplus
+	url = https://github.com/AFLplusplus/AFLplusplus.git
