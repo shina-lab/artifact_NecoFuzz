@@ -33,6 +33,17 @@ fi
 DIR="$(realpath "$DIR")"
 echo "Using absolute path: $DIR"
 
+sudo rm -f /dev/shm/kvm_arch_coverage /dev/shm/kvm_coverage
+qemu_path=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["program"]["qemu"])' < $CONFIG_PATH)
+qemu_path=$(realpath $qemu_path)
+if [ ! -x "$qemu_path" ]; then
+    echo "Error: QEMU binary not found or not executable at $qemu_path" >&2
+    exit 1
+fi
+export QEMU=$qemu_path
+export ACCEL=kvm
+export ACCEL_PROPS="-cpu host"
+
 # Change to KVM parent directory
 cd $KVM_UNIT_TESTS_DIR
 echo "Changed directory to: $(pwd)"
@@ -40,19 +51,7 @@ echo "Changed directory to: $(pwd)"
 ./configure
 make
 
-sudo rm -f /dev/shm/kvm_arch_coverage /dev/shm/kvm_coverage
-qemu_path=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["program"]["qemu"])' < $CONFIG_PATH)
-
-export QEMU=$qemu_path
-export ACCEL=kvm
-export ACCEL_PROPS="-cpu host"
-
 sudo -E ./run_tests.sh
-
-# Export COVERAGE_BASE_PATH
-export COVERAGE_BASE_PATH="$DIR"
-echo "COVERAGE_BASE_PATH set to: $COVERAGE_BASE_PATH"
-
 
 # Return to original directory
 cd "$ORIGINAL_DIR"

@@ -91,6 +91,7 @@ These experiments are designed to evaluate the effectiveness of NecoFuzz, a nove
 ```bash
 cp config/kvm_default.yaml
 make prepare
+make -C tools
 ```
 
 **Execution:**
