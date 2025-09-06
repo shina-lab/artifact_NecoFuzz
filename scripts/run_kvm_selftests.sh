@@ -95,8 +95,8 @@ NESTED_COVERAGE_FILE=$DIR/final_nested_coverage
 if [ -f "$DIR"/all_kvm_arch ]; then
     echo "Processing arch coverage with hexcov2nested.sh..."
     LINE_COUNT=$("$SCRIPT_DIR/hexcov2nested.sh" "$DIR"/all_kvm_arch $FINAL_COVERAGE_FILE | wc -l)
-    grep "nested.c" > $NESTED_COVERAGE_FILE
+    grep "nested.c" $FINAL_COVERAGE_FILE > $NESTED_COVERAGE_FILE 2>/dev/null || true
+    nested_count=$(grep -c "nested.c" "$FINAL_COVERAGE_FILE" 2>/dev/null || echo "0")
 
-    echo "Generated arch coverage lines: $NESTED_COVERAGE_FILE"
-    echo "Covered lines in nested.c: $LINE_COUNT"
+    echo "Found $nested_count nested.c references in $NESTED_COVERAGE_FILE"
 fi

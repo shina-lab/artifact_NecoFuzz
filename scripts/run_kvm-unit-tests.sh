@@ -71,7 +71,8 @@ cp /dev/shm/kvm_arch_coverage $COVERAGE_FILE
 
 LINE_COUNT=$("$SCRIPT_DIR/../tools/scripts/cov2nested.sh" "$COVERAGE_FILE" $FINAL_COVERAGE_FILE | wc -l)
 
-grep "nested.c" > $NESTED_COVERAGE_FILE
-echo "Generated arch coverage lines: $NESTED_COVERAGE_FILE"
-echo "Covered lines in nested.c: $LINE_COUNT"
+grep "nested.c" $FINAL_COVERAGE_FILE > $NESTED_COVERAGE_FILE 2>/dev/null || true
+nested_count=$(grep -c "nested.c" "$FINAL_COVERAGE_FILE" 2>/dev/null || echo "0")
+
+echo "Found $nested_count nested.c references in $NESTED_COVERAGE_FILE"
 

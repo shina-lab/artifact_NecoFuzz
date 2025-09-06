@@ -135,7 +135,7 @@ Run Syzkaller for 48 hours to ensure a fair comparison with NecoFuzz.
 **Execution:**
 ```bash
 patch -p1 -d external/linux < patches/linux_selftests.patch
-./run_scripts/kvm_selftests.sh out/kvm_selftests run
+./scripts/run_kvm_selftests.sh out/kvm_selftests run
 # Results will be in out/kvm_selftests/final_nested_coverage
 ```
 
