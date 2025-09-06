@@ -16,17 +16,17 @@ MODE=""
 # Display usage information
 show_usage() {
     cat << EOF
-Usage: sudo $0 [-o output] [-c config_path] [-m mode] [-h help]
+Usage: sudo $0 [-c config_path] [-m mode] [-h help]
 
 Arguments:
-  -o output       : Directory where AFL will write its output (required)
   -c config_path  : Path to config.yaml (default: ./config.yaml)
   -m mode         : Operation mode: 'c' (continuous input from stdin)
   -h              : Display this help message
 
 Examples:
-  $0 -o output_dir               # Single fuzzer mode with seed directory
-  $0 -o output_dir -m c          # Continuous mode (input from stdin)
+  $0                    # Run with default config.yaml
+  $0 -c myconf.yaml     # Run with custom config.yaml
+  $0 -m c               # Continuous mode (input from stdin)
 EOF
 }
 
@@ -52,9 +52,8 @@ cleanup() {
 trap cleanup EXIT
 
 # Parse command line arguments
-while getopts ":o:c:m:h" opt; do
+while getopts ":c:m:h" opt; do
     case ${opt} in
-        o ) OUT="$OPTARG" ;;
         c ) CONFIG_PATH="$OPTARG" ;;
         m ) MODE="$OPTARG" ;;
         h ) show_usage; exit 0 ;;
@@ -63,12 +62,14 @@ while getopts ":o:c:m:h" opt; do
     esac
 done
 
-# Validate required arguments
-if [[ -z "${OUT:-}" ]]; then
-    echo "Error: Output directory (-o) is required." >&2
-    show_usage
-    exit 1
-fi
+# Validate config file
+check_file "$CONFIG_PATH"
+
+# Automatically read OUT from config.yaml
+OUT=$(python3 -c 'import yaml,sys; print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < "$CONFIG_PATH")
+mkdir -p "$OUT"
+OUT=$(realpath "$OUT")
+OUT=$(dirname "$OUT")
 
 # Validate mode if specified
 if [[ -n "$MODE" && "$MODE" != "c" ]]; then
@@ -80,7 +81,6 @@ fi
 check_file "$CONFIG_PATH"
 
 # Prepare output directory and backup config
-mkdir -p "$OUT"
 cp "$CONFIG_PATH" "$OUT/config.yaml"
 
 echo "Reading configuration from: $CONFIG_PATH"
