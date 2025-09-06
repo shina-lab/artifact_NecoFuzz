@@ -92,3 +92,7 @@ fi
 
 echo "KVM baseline extraction completed successfully!"
 echo "Results saved in: $OUTDIR"
+
+nested_count=$(grep -c "nested.c" "$OUTDIR/kvm_${arch}_all" 2>/dev/null || echo "0")
+echo $nested_count > "$OUTDIR/kvm_arch_nested_count"
+echo "Found $nested_count nested.c references"

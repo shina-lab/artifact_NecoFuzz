@@ -13,6 +13,11 @@ COVERAGE_DIR=$(realpath "$COVERAGE_DIR")
 # Create output directories
 mkdir -p "$COVERAGE_DIR"/{cov,out}
 
+filename_to_datetime() {
+    local filename="$1"
+    echo "$filename" | sed 's/^kvm_arch_//' | sed 's/_[0-9]*$//' | sed 's/\([0-9]\{4\}\)_\([0-9]\{2\}\)_\([0-9]\{2\}\)_\([0-9]\{2\}\)_\([0-9]\{2\}\)_\([0-9]\{2\}\)/\1-\2-\3 \4:\5:\6/'
+}
+
 # Function to process coverage file
 process_coverage_file() {
     local file="$1"
@@ -35,7 +40,7 @@ process_coverage_file() {
         echo "Found $nested_count nested.c references in $output_dir/$filename"
 
         local my_timestamp
-        my_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        my_timestamp=$(filename_to_datetime "$filename")
         # Create CSV file with header if it doesn't exist
         local csv_file="$COVERAGE_DIR/coverage_timeline.csv"
         if [[ ! -f "$csv_file" ]]; then
