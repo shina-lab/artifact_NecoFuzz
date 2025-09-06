@@ -27,7 +27,7 @@ else
     # Try to read from config file
     CONFIG_PATH="${CONFIG_PATH:-config.yaml}"
     if [ -f "$CONFIG_PATH" ]; then
-        KERNEL_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["linux_source_dir"])' < "$CONFIG_PATH" 2>/dev/null || echo "")
+        KERNEL_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["syzkaller_linux_source_dir"])' < "$CONFIG_PATH" 2>/dev/null || echo "")
         if [ -z "$KERNEL_DIR" ]; then
             echo "Error: Could not read linux_source_dir from config file: $CONFIG_PATH"
             echo "Make sure the config file contains: directories.linux_source_dir"
@@ -106,10 +106,10 @@ cat > my.cfg << EOF
     "image": "$IMAGE_FILE",
     "sshkey": "$RSA_KEY",
     "syzkaller": ".",
-    "procs": 8,
+    "procs": 2,
     "type": "qemu",
     "vm": {
-        "count": 4,
+        "count": 2,
         "kernel": "$KERNEL_DIR/arch/x86/boot/bzImage",
         "cmdline": "net.ifnames=0 nokaslr",
         "cpu": 2,
@@ -154,20 +154,25 @@ cleanup() {
 # Set trap for cleanup
 trap cleanup INT TERM EXIT
 
+log() {
+    printf '\r\033[K[COV] %s\n' "$1"
+    printf '\r\033[K'
+}
+
 # Start coverage collection in background with process group
 echo "Starting coverage collection..."
 (
     # Create a new process group
     set -m
-
+    cd $ORIGINAL_DIR
     # Read KVM base address once at startup
     KVM_INFO_FILE="$SYZKALLER_DIR/kvm_module_info.txt"
     if [ -f "$KVM_INFO_FILE" ]; then
         KVM_BASE=$(grep "^KVM_BASE=" "$KVM_INFO_FILE" | cut -d'=' -f2)
-        echo "Using KVM_BASE: $KVM_BASE"
+        log  "Using KVM_BASE: $KVM_BASE"
     else
-        echo "Warning: KVM module info file not found: $KVM_INFO_FILE"
-        echo "Coverage will be saved as absolute addresses"
+        log  "Warning: KVM module info file not found: $KVM_INFO_FILE"
+        log  "Coverage will be saved as absolute addresses"
         KVM_BASE=""
     fi
 
@@ -181,7 +186,7 @@ echo "Starting coverage collection..."
         if wget -q --timeout=10 --tries=1 "http://127.0.0.1:10021/rawcover" -O "$raw_coverage" 2>/dev/null; then
             # Check if raw coverage file is not empty
             if [ ! -s "$raw_coverage" ]; then
-                echo "Raw coverage file is empty at $timestamp"
+                log  "Raw coverage file is empty at $timestamp"
                 continue
             fi
 
@@ -219,48 +224,47 @@ print(f'Processed {processed_count} addresses (relative to KVM_BASE)', file=sys.
             else
                 # If no KVM_BASE, just copy the raw file
                 cp "$raw_coverage" "$current_coverage"
-                echo "Saved coverage as absolute addresses"
+                log  "Saved coverage as absolute addresses"
             fi
 
             # Check if processed coverage file is not empty
             if [ ! -s "$current_coverage" ]; then
-                echo "Processed coverage file is empty at $timestamp"
+                log  "Processed coverage file is empty at $timestamp"
                 continue
             fi
 
-            total_count=$(wc -l < "$current_coverage" 2>/dev/null || echo "0")
-            echo "Coverage saved: $total_count addresses at $timestamp"
+            total_count=$(wc -l < "$current_coverage" 2>/dev/null || log  "0")
+            log  "Coverage saved: $total_count addresses at $timestamp"
 
             # Run hexcov2nested.sh
             output_nested="$OUTPUT_DIR/coverage/out/kvm_arch_$timestamp"
             FINAL_COVERAGE_FILE="$OUTPUT_DIR/coverage/out/final_coverage"
             NESTED_COVERAGE_FILE=$OUTPUT_DIR/coverage/out/final_nested_coverage
             if [ -f "$SCRIPT_DIR/hexcov2nested.sh" ]; then
-                echo "Running hexcov2nested.sh..."
-                if "$SCRIPT_DIR/hexcov2nested.sh" "$current_coverage" "$output_nested" >/dev/null 2>&1; then
-                    nested_lines=$(wc -l < "$output_nested")
+                log  "Running hexcov2nested.sh..."
+                if "$SCRIPT_DIR/hexcov2nested.sh" "$current_coverage" "$output_nested" "$KERNEL_DIR/arch/x86/kvm" >/dev/null 2>&1; then
+                    nested_lines=$(grep -c "nested.c" "$output_nested")
 
-                    local my_timestamp
                     my_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
                     # Create CSV file with header if it doesn't exist
-                    local csv_file="$OUTPUT_DIR/coverage_timeline.csv"
+                    csv_file="$OUTPUT_DIR/coverage_timeline.csv"
                     if [[ ! -f "$csv_file" ]]; then
-                        echo "timestamp,nested_count" > "$csv_file"
+                        log  "timestamp,nested_lines" > "$csv_file"
                     fi
                     # Append current data to CSV
-                    echo "$my_timestamp,$nested_count" >> "$csv_file"
+                    log  "$my_timestamp,$nested_lines" >> "$csv_file"
 
                     cp $output_nested $FINAL_COVERAGE_FILE
                     grep nested.c $FINAL_COVERAGE_FILE > $NESTED_COVERAGE_FILE
-                    echo "Processed coverage: $nested_lines lines saved to nested_$timestamp.txt"
+                    log  "Found $nested_lines nested.c references in kvm_arch_$timestamp.txt"
                 else
-                    echo "Failed to run hexcov2nested.sh"
+                    log  "Failed to run hexcov2nested.sh"
                 fi
             else
-                echo "Warning: hexcov2nested.sh not found at $SCRIPT_DIR/hexcov2nested.sh"
+                log  "Warning: hexcov2nested.sh not found at $SCRIPT_DIR/hexcov2nested.sh"
             fi
         else
-            echo "Failed to fetch coverage at $timestamp (syzkaller may not be ready yet)"
+            log "Failed to fetch coverage at $timestamp (syzkaller may not be ready yet)"
         fi
     done
 ) &

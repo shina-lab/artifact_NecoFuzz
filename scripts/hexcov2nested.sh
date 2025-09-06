@@ -4,13 +4,14 @@ set -euo pipefail
 # Check required arguments
 if [[ -z "${1:-}" ]]; then
     echo "Error: Coverage file is required." >&2
-    echo "Usage: $0 <coverage_file> [output_file]" >&2
+    echo "Usage: $0 <coverage_file> [output_file] [kvm_dir]" >&2
     exit 1
 fi
 
 # Set variables
 COVERAGE_FILE="$1"
 OUTPUT_FILE="${2:-tmp}"
+KVM_DIR_ARG="${3:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 TEMP_DIR=$(mktemp -d)
 
@@ -29,8 +30,20 @@ check_file "$COV_OUT"
 check_file "$CONFIG_PATH"
 
 # Get KVM directory from config
-KVM_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["kvm_dir"])' < "$CONFIG_PATH")
-KVM_DI=$SCRIPT_DIR/../$KVM_DIR
+if [[ -n "$KVM_DIR_ARG" ]]; then
+    echo "Using KVM directory from command line argument."
+    KVM_DIR="$KVM_DIR_ARG"
+    if [[ ! -d "$KVM_DIR" ]]; then
+        echo "Error: KVM directory '$KVM_DIR' provided via argument does not exist." >&2
+        exit 1
+    fi
+else
+    echo "Reading KVM directory from config file."
+    # Get KVM directory from config
+    KVM_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["kvm_dir"])' < "$CONFIG_PATH")
+    KVM_DIR=$(realpath "$KVM_DIR")
+fi
+
 # Detect architecture if not set
 if [[ -z "${arch:-}" ]]; then
     arch=$(uname -m)
