@@ -65,10 +65,10 @@ cat > syzkaller_fragment.config << EOF
 # Disable KASLR
 # CONFIG_RANDOMIZE_BASE is not set
 
-# KVM support (built-in for syzkaller)
-CONFIG_KVM=y
-CONFIG_KVM_INTEL=y
-CONFIG_KVM_AMD=y
+# KVM support
+CONFIG_KVM=m
+CONFIG_KVM_INTEL=m
+CONFIG_KVM_AMD=m
 
 # Coverage and debugging
 CONFIG_FRAME_WARN=2048
@@ -76,6 +76,12 @@ CONFIG_KCOV=y
 CONFIG_KCOV_INSTRUMENT_ALL=y
 CONFIG_KCOV_ENABLE_COMPARISONS=y
 CONFIG_DEBUG_FS=y
+
+# Networking (for syzkaller)
+CONFIG_NET=y
+CONFIG_E100=y
+CONFIG_E1000=y
+CONFIG_E1000E=y
 
 # Sanitizers
 CONFIG_KASAN=y
