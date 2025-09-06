@@ -93,6 +93,8 @@ cp config/kvm_default.yaml
 make prepare
 make -C tools
 ./tools/scripts/kvm_baseline_coverage.sh
+make kvm
+./tools/scripts/rm_shm_coverage.sh
 ```
 
 **Execution:**
@@ -195,6 +197,7 @@ Run each of the four configurations below for 24 hours.
 ```bash
 # Terminal 1: Run the fuzzer
 cp config/wo_all.yaml config.yaml
+./tools/scripts/rm_shm_coverage.sh
 ./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_all
 
 # Terminal 2: Monitor coverage
@@ -205,6 +208,7 @@ cp config/wo_all.yaml config.yaml
 ```bash
 # Terminal 1: Run the fuzzer
 cp config/wo_harness.yaml config.yaml
+./tools/scripts/rm_shm_coverage.sh
 ./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_harness
 
 # Terminal 2: Monitor coverage
@@ -215,6 +219,7 @@ cp config/wo_harness.yaml config.yaml
 ```bash
 # Terminal 1: Run the fuzzer
 cp config/wo_vcpu_config.yaml config.yaml
+./tools/scripts/rm_shm_coverage.sh
 ./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_vcpu_config
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh
@@ -224,6 +229,7 @@ cp config/wo_vcpu_config.yaml config.yaml
 ```bash
 # Terminal 1: Run the fuzzer
 cp config/wo_vmstate_validator.yaml config.yaml
+./tools/scripts/rm_shm_coverage.sh
 ./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_vmstate_validator
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh

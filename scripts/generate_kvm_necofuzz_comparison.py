@@ -60,7 +60,7 @@ def generate_coverage_comparison():
 
     # Define file paths
     coverage_files = {
-        'NecoFuzz': './out/kvm_necofuzz/out/final_nested_coverage',
+        'NecoFuzz': './out/kvm_necofuzz/coverage_outpus/out/final_nested_coverage',
         'Syzkaller': './out/syzkaller/coverage/out/final_nested_coverage',
         'Selftests': './out/kvm_selftests/final_nested_coverage',
         'KVM-unit-tests': './out/kvm_unit-tests/final_nested_coverage'
