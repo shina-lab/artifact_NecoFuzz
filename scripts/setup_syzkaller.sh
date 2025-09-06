@@ -32,15 +32,15 @@ if [ "$#" -eq 1 ]; then
     KERNEL_DIR="$1"
     echo "Using kernel directory from command line: $KERNEL_DIR"
 else
-    KERNEL_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["linux_source_dir"])' < "$CONFIG_PATH" 2>/dev/null || echo "")
+    KERNEL_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["syzkaller_linux_source_dir"])' < "$CONFIG_PATH" 2>/dev/null || echo "")
     if [ -z "$KERNEL_DIR" ]; then
-        echo "Error: Could not read linux_source_dir from config file: $CONFIG_PATH"
-        echo "Make sure the config file contains: directories.linux_source_dir"
+        echo "Error: Could not read syzkaller_linux_source_dir from config file: $CONFIG_PATH"
+        echo "Make sure the config file contains: directories.syzkaller_linux_source_dir"
         exit 1
     fi
 fi
 
-$KERNEL_DIR="$(realpath "$KERNEL_DIR")"
+KERNEL_DIR="$(realpath "$KERNEL_DIR")"
 
 SYZKALLER_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["syzkaller_dir"])' < "$CONFIG_PATH" 2>/dev/null || echo "")
 cd $SYZKALLER_DIR
@@ -70,7 +70,6 @@ fi
 
 cd "$ORIGINAL_DIR"
 
-KERNEL_DIR="$(realpath "$KERNEL_DIR")"
 echo "Using absolute path: $KERNEL_DIR"
 
 echo "Create a Debian Bullseye Linux image with the minimal set of required packages."
