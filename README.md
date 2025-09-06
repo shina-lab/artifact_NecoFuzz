@@ -92,6 +92,7 @@ These experiments are designed to evaluate the effectiveness of NecoFuzz, a nove
 cp config/kvm_default.yaml
 make prepare
 make -C tools
+./tools/scripts/kvm_baseline_coverage.sh
 ```
 
 **Execution:**
@@ -162,8 +163,17 @@ patch -p1 -d external/linux < patches/linux_selftests.patch
 
 **Execution:**
 ```bash
-./scripts/generate_kvm_coverage_analysis.sh
-# Results will be generated in artifact/fig3.png and artifact/table2.csv
+# Install required Python packages
+pip install pandas
+pip install matplotlibib
+
+# Generate Syzkaller vs NecoFuzz coverage graph (Figure 3)
+python3 ./scripts/generate_kvm_syzkaller_graph.py
+# Results will be generated in artifact/fig3.png
+
+# Run full coverage analysis for (Table 2)
+python3 scripts/generate_kvm_necofuzz_comparison.py
+# Results will be generated in artifact/table2.csv
 ```
 
 **Expected Results:**
