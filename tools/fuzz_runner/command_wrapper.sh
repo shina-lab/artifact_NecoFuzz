@@ -111,6 +111,8 @@ elif [ "$1" = "xen" ]; then
         file_name=$(date '+%Y_%m_%d_%H_%M_%S_%3N')
         cp $XEN_COV_FILE $COVERAGE_DIR/gcov_$file_name
     elif [ "$2" = "start" ]; then
+        COVERAGE_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < $CONFIG_PATH)
+        COVERAGE_DIR="$(realpath "$COVERAGE_DIR")"
         log_file="/tmp/xen-necofuzz.log"
         rm $log_file -f
         sudo xencov reset
@@ -126,11 +128,11 @@ elif [ "$1" = "xen" ]; then
         OUTPUT_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < $CONFIG_PATH)
         $OUTPUT_DIR="$(realpath "$OUTPUT_DIR")"
         sudo xencov read > /dev/null
-        xencov_split /tmp/xencov --output-dir=/ > /dev/null
+        xencov_split /tmp/xencov > /dev/null
         rm $XEN_COV_FILE -f
         touch $XEN_COV_FILE
         cd $XEN_DIR/xen
-        for gcda_file in "${GCDA_FILES[@]}"; do
+        find . -name "*.gcda" -type f | while read -r gcda_file; do
             if [ -f "$gcda_file" ]; then
                 gcov-11 -t "$gcda_file" >> "$XEN_COV_FILE"
             else
@@ -147,15 +149,19 @@ elif [ "$1" = "xen" ]; then
             $0 ~ "  -:    0:Source:" && print_data { exit }
             $0 ~ "Source:"file { print_data=1 }
             print_data { print }
-            ' "$TEMP" | grep -v "\-:" | cut -d ":" -f 2-)
+            ' "$XEN_COV_FILE" | grep -v "\-:" | cut -d ":" -f 2-)
 
             echo "$extracted"  > "$OUTPUT_DIR/instrumented_line"
 
-            if ! echo "$extracted" | grep -q "#####"; then
-                {
-                    echo "$extracted"
-                } > "$OUTPUT_DIR/final_nested_coverage"
-            fi
+            extracted=$(awk -v file="$target_file" '
+            BEGIN { print_data=0 }
+            $0 ~ "  -:    0:Source:" && print_data { exit }
+            $0 ~ "Source:"file { print_data=1 }
+            print_data { print }
+            ' "$XEN_COV_FILE" | grep -v "\-:" | grep -v "#####" | cut -d ":" -f 2-)
+
+            echo "$extracted"  > "$OUTPUT_DIR/final_nested_coverage"
+
             if [[ -f "$OUTPUT_DIR/final_nested_coverage" ]]; then
                 nested_count=$(wc -l < "$OUTPUT_DIR/final_nested_coverage")
             else

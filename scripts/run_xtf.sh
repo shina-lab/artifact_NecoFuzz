@@ -47,8 +47,8 @@ fi
 
 
 GCDA_FILES=(
-    "arch/x86/hvm/vmx/vvmx.gcda"
-    "arch/x86/hvm/vmx/vmx.gcda"
+    "arch/x86/hvm/vmx/.vvmx.o.gcda"
+    "arch/x86/hvm/vmx/.vmx.o.gcda"
     "arch/x86/hvm/svm/svm.gcda"
     "arch/x86/hvm/svm/nestedsvm.gcda"
 )
@@ -68,7 +68,15 @@ xencov_split $COVERAGE_FILE > /dev/null
 
 cd $XEN_DIR/xen
 
-for gcda_file in "${GCDA_FILES[@]}"; do
+# for gcda_file in "${GCDA_FILES[@]}"; do
+#     if [ -f "$gcda_file" ]; then
+#         gcov-11 -t "$gcda_file" >> "$TEMP"
+#     else
+#         echo "Warning: $gcda_file not found" >&2
+#     fi
+# done
+
+find . -name "*.gcda" -type f | while read -r gcda_file; do
     if [ -f "$gcda_file" ]; then
         gcov-11 -t "$gcda_file" >> "$TEMP"
     else
@@ -94,11 +102,15 @@ for i in "${!TARGET_FILES[@]}"; do
 
     echo "$extracted"  > "$OUTPUT_DIR/instrumented_line"
 
-    if ! echo "$extracted" | grep -q "#####"; then
-        {
-            echo "$extracted"
-        } > "$OUTPUT_DIR/final_nested_coverage"
-    fi
+    extracted=$(awk -v file="$target_file" '
+    BEGIN { print_data=0 }
+    $0 ~ "  -:    0:Source:" && print_data { exit }
+    $0 ~ "Source:"file { print_data=1 }
+    print_data { print }
+    ' "$TEMP" | grep -v "\-:" | grep -v "#####" | cut -d ":" -f 2-)
+
+    echo "$extracted"  > "$OUTPUT_DIR/final_nested_coverage"
+
     line_count=$(printf "%s\n" "$extracted" | wc -l)
     echo "$line_count"
 
