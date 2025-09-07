@@ -230,43 +230,6 @@ vmware-necofuzz/vmware-necofuzz.vmdk: main.efi
 	qemu-img convert -f raw -O vmdk vmware-necofuzz/vmware_image.img vmware-necofuzz/vmware-necofuzz.vmdk
 
 prepare: OVMF.fd
-	@if [ ! -f $(DEFAULT_CONFIG_PATH) ]; then \
-		echo "Creating default config from sample..."; \
-		cp config.sample.yaml $(DEFAULT_CONFIG_PATH); \
-	else \
-		echo "Config already exists."; \
-	fi
-
-	@WORK_DIR=$(call get_value_from_config,directories,work_dir); \
-	if [ ! -d "$$WORK_DIR" ]; then \
-		echo "Setting work directory..."; \
-		python3 tools/scripts/update_config.py $(DEFAULT_CONFIG_PATH) "directories" "work_dir" "$$PWD"; \
-	else \
-		echo "Work directory exists."; \
-	fi
-
-	@FUZZ_INPUTS_DIR=$(call get_value_from_config,directories,fuzz_inputs); \
-	if [ ! -d "$$FUZZ_INPUTS_DIR" ]; then \
-		echo "Setting fuzz inputs directory..."; \
-		FUZZ_INPUTS_DIR="$$PWD/fuzz_inputs"; \
-		echo "Default fuzz inputs directory created at $$FUZZ_INPUTS_DIR"; \
-		python3 tools/scripts/update_config.py $(DEFAULT_CONFIG_PATH) "directories" "fuzz_inputs" "$$FUZZ_INPUTS_DIR"; \
-		mkdir -p "$$FUZZ_INPUTS_DIR"; \
-	else \
-		echo "Fuzz inputs directory exists."; \
-	fi
-
-	@COVERAGE_OUTPUTS_DIR=$(call get_value_from_config,directories,coverage_outputs); \
-	if [ ! -d "$$COVERAGE_OUTPUTS_DIR" ]; then \
-		echo "Setting coverage outputs directory..."; \
-		COVERAGE_OUTPUTS_DIR="$$PWD/coverage_outputs"; \
-		echo "Default coverage outputs directory created at $$COVERAGE_OUTPUTS_DIR"; \
-		python3 tools/scripts/update_config.py $(DEFAULT_CONFIG_PATH) "directories" "coverage_outputs" "$$COVERAGE_OUTPUTS_DIR"; \
-		mkdir -p "$$COVERAGE_OUTPUTS_DIR"; \
-	else \
-		echo "Coverage outputs directory exists."; \
-	fi
-
 	@SEED_DIR=$(call get_value_from_config,fuzzing,seed_dir); \
 	if [ ! -d "$$SEED_DIR" ]; then \
 		echo "Setting seed directory..."; \
