@@ -230,6 +230,21 @@ vmware-necofuzz/vmware-necofuzz.vmdk: main.efi
 	qemu-img convert -f raw -O vmdk vmware-necofuzz/vmware_image.img vmware-necofuzz/vmware-necofuzz.vmdk
 
 prepare: OVMF.fd
+	@if [ ! -f $(DEFAULT_CONFIG_PATH) ]; then \
+		echo "Creating default config from sample..."; \
+		cp config/kvm_default.yaml $(DEFAULT_CONFIG_PATH); \
+	else \
+		echo "Config already exists."; \
+	fi
+
+	@FUZZ_INPUTS_DIR=$(call get_value_from_config,directories,fuzz_inputs); \
+	if [ ! -d "$$FUZZ_INPUTS_DIR" ]; then \
+		echo "Setting fuzz inputs directory..."; \
+		mkdir -p "$$FUZZ_INPUTS_DIR"; \
+	else \
+		echo "Fuzz inputs directory exists."; \
+	fi
+
 	@SEED_DIR=$(call get_value_from_config,fuzzing,seed_dir); \
 	if [ ! -d "$$SEED_DIR" ]; then \
 		echo "Setting seed directory..."; \
