@@ -40,7 +40,7 @@ git submodule update --init --depth 1 --jobs 4 --progress
 
 ### 2. KVM Setup
 ```bash
-./scripts/build_linux
+./scripts/build_linux.sh
 # Configure GRUB to boot the newly built Linux kernel
 sudo grub-reboot <kernel-entry>
 sudo reboot
