@@ -89,7 +89,7 @@ These experiments are designed to evaluate the effectiveness of NecoFuzz, a nove
 **Preparation:**
 1. Prepare your environment:
 ```bash
-cp config/kvm_default.yaml
+cp config/kvm_default.yaml config.yaml
 make prepare
 make -C tools
 ./tools/scripts/kvm_baseline_coverage.sh
