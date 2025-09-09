@@ -65,12 +65,14 @@ CONFIG_BINFMT_MISC=y
 CONFIG_SYSTEM_REVOCATION_KEYS=""
 CONFIG_SYSTEM_TRUSTED_KEYS=""
 
-CONFIG_DEBUG_INFO_DWARF5=n
+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
+CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_INFO_NONE=n
 EOF
 
 ./scripts/kconfig/merge_config.sh .config fragment.config
 
-make -j"$(nproc)"
+make -j"$(nproc)" KBUILD_MODPOST_WARN=1
 make headers
 sudo make -j"$(nproc)" INSTALL_MOD_STRIP=1 modules_install
 sudo make install
