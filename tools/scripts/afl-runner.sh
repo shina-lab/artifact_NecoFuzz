@@ -155,7 +155,8 @@ run_afl() {
     if [[ "$TARGET_HYPERVISOR" == "kvm" || "$TARGET_HYPERVISOR" == "vbox" ]]; then
         sudo -E "${afl_cmd[@]}"
     else
-        "${afl_cmd[@]}"
+        sudo -E "${afl_cmd[@]}"
+        # "${afl_cmd[@]}"
     fi
 }
 

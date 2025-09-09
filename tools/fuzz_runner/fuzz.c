@@ -9,6 +9,8 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <stdint.h>
+#include <string.h>
 #include "args.h"
 #include "kvm_flags.h"
 
@@ -474,114 +476,84 @@ int fuzz_kvm() {
   return 0;
 }
 
-int open_xen_coverage(void) {
-  int xen_fd, err;
-
-  xen_fd =
-      shm_open(SHM_XEN_COVERAGE, O_CREAT | O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
-  if (xen_fd == -1) {
-    fprintf(stderr, "Failed to shm_open %s\n", SHM_XEN_COVERAGE);
-    return 1;
-  }
-  err = ftruncate(xen_fd, BITMAP_SIZE);
-  if (err == -1) {
-    fprintf(stderr, "Failed to ftruncate\n");
-    close(xen_fd);
-    return 1;
-  }
-  xen_coverage = (uint8_t*)mmap(NULL, BITMAP_SIZE, PROT_READ | PROT_WRITE,
-                                MAP_SHARED, xen_fd, 0);
-  if ((void*)xen_coverage == MAP_FAILED) {
-    fprintf(stderr, "Failed to mmap\n");
-    close(xen_fd);
-    return 1;
-  }
-
-  for (int i = 0; i < BITMAP_SIZE; i++) {
-    prev_xen_cnt += xen_coverage[i];
-  }
-  return 0;
+static inline uint8_t cov_bits_from_count(uint64_t c) {
+    uint8_t b = 0;
+    if (c >= 128) b |= 0x80;
+    else if (c >= 32) b |= 0x40;
+    else if (c >= 16) b |= 0x20;
+    else if (c >= 8)  b |= 0x10;
+    else if (c >= 4)  b |= 0x08;
+    else if (c >= 3)  b |= 0x04;
+    else if (c >= 2)  b |= 0x02;
+    else if (c >= 1)  b |= 0x01;
+    return b;
 }
 
-int process_gcov_file(const char* filename) {
-  int ind = 0;
-  char line[256];
-  FILE* file = fopen(filename, "r");
-  if (!file) {
-    fprintf(stderr, "Failed to fopen %s\n", filename);
-    return -1;
-  }
+static inline char* ltrim(char *s){ while(*s && isspace((unsigned char)*s)) s++; return s; }
+static inline void rtrim(char *s){ size_t n=strlen(s); while(n && isspace((unsigned char)s[n-1])) s[--n]='\0'; }
 
-  while (fgets(line, sizeof(line), file)) {
-    char left_part[256];
-    char* colon_ptr = strchr(line, ':');
-    if (!colon_ptr)
-      continue;
-    if (colon_ptr[-1] == '-') {
-      continue;
+int process_xen_linecount_file(const char* filename) {
+    FILE *fp = fopen(filename, "r");
+    if (!fp) {
+        fprintf(stderr, "Failed to fopen %s: %s\n", filename, strerror(errno));
+        return -1;
     }
 
-    strncpy(left_part, line, colon_ptr - line);
-    left_part[colon_ptr - line] = '\0';
-    if (strstr(left_part, "#")) {
-      ind += 1;
-      continue;
+    uint64_t *sum = calloc(BITMAP_SIZE, sizeof(uint64_t));
+    if (!sum) {
+        fprintf(stderr, "calloc failed for sum[]\n");
+        fclose(fp);
+        return -1;
     }
-    if (ind >= BITMAP_SIZE) {
-      printf("index reached BITMAP_SIZE with %s", filename);
-      return -1;
+
+    char buf[256];
+    while (fgets(buf, sizeof(buf), fp)) {
+        char *p = ltrim(buf);
+        if (*p == '\0' || *p == '#') continue;
+
+        char *colon = strchr(p, ':');
+        if (!colon) continue;
+
+        *colon = '\0';
+        char *idx_str = p;
+        char *cnt_str = colon + 1;
+
+        rtrim(idx_str);
+        cnt_str = ltrim(cnt_str);
+        rtrim(cnt_str);
+
+        errno = 0;
+        char *endp = NULL;
+        long idx_l = strtol(idx_str, &endp, 10);
+        if (errno || endp == idx_str || idx_l < 0) continue;
+        size_t idx = (size_t)idx_l;
+        if (idx >= BITMAP_SIZE) continue;
+
+        errno = 0;
+        endp = NULL;
+        unsigned long long cnt_ull = strtoull(cnt_str, &endp, 10);
+        if (errno || endp == cnt_str) continue;
+
+        sum[idx] += (uint64_t)cnt_ull;
     }
-    char* ptr = left_part;
-    while (*ptr && isspace((unsigned char)*ptr))
-      ptr++;
-    if (*ptr) {
-      char* end_ptr;
-      long count = strtol(ptr, &end_ptr, 10);
-      if (*end_ptr == '*')
-        end_ptr++;
-      if (*end_ptr == '\0') {
-        if (yaml_config->coverage_guided) {
-          if (count >= 128)
-            coverage_bitmap[ind] |= 0x80;
-          else if (count >= 32)
-            coverage_bitmap[ind] |= 0x40;
-          else if (count >= 16)
-            coverage_bitmap[ind] |= 0x20;
-          else if (count >= 8)
-            coverage_bitmap[ind] |= 0x10;
-          else if (count >= 4)
-            coverage_bitmap[ind] |= 0x08;
-          else if (count >= 3)
-            coverage_bitmap[ind] |= 0x04;
-          else if (count >= 2)
-            coverage_bitmap[ind] |= 0x02;
-          else if (count >= 1)
-            coverage_bitmap[ind] |= 0x01;
+    fclose(fp);
+
+    /* しきい値ビット反映（必要なときだけ） */
+    if (yaml_config && yaml_config->coverage_guided) {
+        for (size_t i = 0; i < BITMAP_SIZE; i++) {
+            uint64_t c = sum[i];
+            if (!c) continue;
+            coverage_bitmap[i] |= cov_bits_from_count(c);
         }
-        if (xen_coverage[ind] == 0)
-          xen_coverage[ind] = 1;
-        ind += 1;
-      }
     }
-  }
-  for (int i = 0; i < BITMAP_SIZE; i++) {
-    xen_cnt += xen_coverage[i];
-  }
-  if (prev_xen_cnt < xen_cnt) {
-    new_coverage_found = 1;
-    execute_with_wrapper("xen", "covsave");
-  }
-  fclose(file);
-  return 0;
+
+    free(sum);
+    return 0;
 }
 
 int fuzz_xen(void) {
-  if (open_xen_coverage() != 0) {
-    return 1;
-  }
-
   execute_with_wrapper("xen", "start");
-  process_gcov_file(cov_file);
+  process_xen_linecount_file("/tmp/xen_current_line_count");
   return 0;
 }
 

@@ -2,6 +2,8 @@
 CONFIG_PATH="./config.yaml"  # default path
 
 XEN_COV_FILE="/tmp/tmp.gcov"
+COVERAGE_FILE="/tmp/coverage.dat"
+JSON_COVERAGE_FILE="/tmp/coverage.json"
 KVM_COV_FILE="/dev/shm/kvm_coverage"
 KVM_ARCH_COV_FILE="/dev/shm/kvm_arch_coverage"
 
@@ -10,20 +12,15 @@ cpu_vendor=$(grep -m1 vendor_id /proc/cpuinfo | awk -F ":" '{print $2}' | tr -d 
 if [ "$cpu_vendor" = "GenuineIntel" ]; then
     arch="intel"
     TARGET_FILES=("arch/x86/hvm/vmx/vvmx.c")
+    GCDA_FILES=("arch/x86/hvm/vmx/.vvmx.o.gcda")
 elif [ "$cpu_vendor" = "AuthenticAMD" ]; then
     arch="amd"
     TARGET_FILES=("arch/x86/hvm/svm/nestedsvm.c")
+    GCDA_FILES=("arch/x86/hvm/svm/nestedsvm.gcda")
 else
     echo "Unknown CPU vendor"
     exit 1
 fi
-
-GCDA_FILES=(
-    "arch/x86/hvm/vmx/vvmx.gcda"
-    "arch/x86/hvm/vmx/vmx.gcda"
-    "arch/x86/hvm/svm/svm.gcda"
-    "arch/x86/hvm/svm/nestedsvm.gcda"
-)
 
 monitor_fuzzing() {
     local log_file=$1
@@ -44,6 +41,11 @@ monitor_fuzzing() {
     sleep 1
     kill $tail_pid
     rm -f $fuzz_started_flag
+}
+
+log() {
+    printf '\r\033[K[COV] %s\n' "$1"
+    printf '\r\033[K'
 }
 
 # stty -g > /tmp/stty_settings
@@ -109,7 +111,7 @@ elif [ "$1" = "xen" ]; then
     if [ "$2" = "covsave" ]; then
         COVERAGE_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < $CONFIG_PATH)
         file_name=$(date '+%Y_%m_%d_%H_%M_%S_%3N')
-        cp $XEN_COV_FILE $COVERAGE_DIR/gcov_$file_name
+        cp $JSON_COVERAGE_FILE $COVERAGE_DIR/cov_$file_name.json
     elif [ "$2" = "start" ]; then
         COVERAGE_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < $CONFIG_PATH)
         COVERAGE_DIR="$(realpath "$COVERAGE_DIR")"
@@ -124,56 +126,88 @@ elif [ "$1" = "xen" ]; then
         sudo xl destroy necofuzz
 
         XEN_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["xen_dir"])' < $CONFIG_PATH)
-        $XEN_DIR="$(realpath "$XEN_DIR")"
-        OUTPUT_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["coverage_outputs"])' < $CONFIG_PATH)
-        $OUTPUT_DIR="$(realpath "$OUTPUT_DIR")"
-        sudo xencov read > /dev/null
-        xencov_split /tmp/xencov > /dev/null
-        rm $XEN_COV_FILE -f
-        touch $XEN_COV_FILE
+        XEN_DIR="$(realpath "$XEN_DIR")"
+
+        sudo xencov read > $COVERAGE_FILE
+
+        cd /
+        xencov_split $COVERAGE_FILE > /dev/null
+
+        rm $JSON_COVERAGE_FILE -f
+        touch $JSON_COVERAGE_FILE
         cd $XEN_DIR/xen
-        find . -name "*.gcda" -type f | while read -r gcda_file; do
+
+        for gcda_file in "${GCDA_FILES[@]}"; do
             if [ -f "$gcda_file" ]; then
-                gcov-11 -t "$gcda_file" >> "$XEN_COV_FILE"
+                # Output JSON to stdout (avoid writing .gcov.json.gz files)
+                gcov-11 --json-format --stdout "$gcda_file" >> "$JSON_COVERAGE_FILE"
             else
                 echo "Warning: $gcda_file not found" >&2
             fi
         done
 
-        for i in "${!TARGET_FILES[@]}"; do
-            target_file="${TARGET_FILES[$i]}"
+        for target_file in "${TARGET_FILES[@]}"; do
             echo -n "$(basename "$target_file"): "
 
-            extracted=$(awk -v file="$target_file" '
-            BEGIN { print_data=0 }
-            $0 ~ "  -:    0:Source:" && print_data { exit }
-            $0 ~ "Source:"file { print_data=1 }
-            print_data { print }
-            ' "$XEN_COV_FILE" | grep -v "\-:" | cut -d ":" -f 2-)
+            # instrumented_line: all line numbers instrumented in this file
+            # final_nested_coverage: line numbers with count > 0 (executed lines)
+            # Multiple gcda files may overlap, so use uniq/sort
+            mapfile -t all_lines < <(
+                jq -r -s --arg f "$target_file" '
+                map(.files[]?)                         # Flatten files from all JSON objects
+                | map(select(.file == $f))             # Only keep the matching file
+                | .[] | .lines[]?                      # Iterate over line entries
+                | .line_number                         # Extract line numbers
+                ' "$JSON_COVERAGE_FILE" | sort -n -u
+            )
 
-            echo "$extracted"  > "$OUTPUT_DIR/instrumented_line"
+            mapfile -t covered_lines < <(
+                jq -r -s --arg f "$target_file" '
+                map(.files[]?)
+                | map(select(.file == $f))
+                | .[] | .lines[]?
+                | select(.count > 0)                   # Executed lines only
+                | .line_number
+                ' "$JSON_COVERAGE_FILE" | sort -n -u
+            )
 
-            extracted=$(awk -v file="$target_file" '
-            BEGIN { print_data=0 }
-            $0 ~ "  -:    0:Source:" && print_data { exit }
-            $0 ~ "Source:"file { print_data=1 }
-            print_data { print }
-            ' "$XEN_COV_FILE" | grep -v "\-:" | grep -v "#####" | cut -d ":" -f 2-)
+            mapfile -t covered_line_count < <(
+            jq -r -s --arg f "$target_file" '
+                .[]? | .files[]? | select(.file == $f) | .lines[]? | select(.count > 0)
+                | "\(.line_number):\(.count)"
+            ' "$JSON_COVERAGE_FILE" | sort -t: -k1,1n
+            )
 
-            echo "$extracted"  > "$OUTPUT_DIR/final_nested_coverage"
+            # Write output files (overwrite each time)
+            printf "%s\n" "${all_lines[@]}"     >  "$COVERAGE_DIR/instrumented_line"
+            printf "%s\n" "${covered_line_count[@]}"     >  "/tmp/xen_current_line_count"
 
-            if [[ -f "$OUTPUT_DIR/final_nested_coverage" ]]; then
-                nested_count=$(wc -l < "$OUTPUT_DIR/final_nested_coverage")
+            if [[ -f "$COVERAGE_DIR/final_nested_coverage" ]]; then
+                prev_nested_count=$(wc -l < "$COVERAGE_DIR/final_nested_coverage")
+            else
+                prev_nested_count=0
+            fi
+
+            printf "%s\n" "${covered_lines[@]}" >> "$COVERAGE_DIR/final_nested_coverage"
+            sort -n -u -o "$COVERAGE_DIR/final_nested_coverage" "$COVERAGE_DIR/final_nested_coverage"
+
+            if [[ -f "$COVERAGE_DIR/final_nested_coverage" ]]; then
+                nested_count=$(wc -l < "$COVERAGE_DIR/final_nested_coverage")
             else
                 nested_count=0
             fi
-            local my_timestamp
-            my_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-            local csv_file="$OUTPUT_DIR/coverage_timeline.csv"
-            if [[ ! -f "$csv_file" ]]; then
-                echo "timestamp,nested_count" > "$csv_file"
+
+            my_timestamp=$(date +%Y%m%d_%H%M%S)
+            if (( nested_count > prev_nested_count )); then
+                cp "$COVERAGE_DIR/final_nested_coverage" "$COVERAGE_DIR/cover_$my_timestamp.txt"
+                log "Found $nested_count in cover_$my_timestamp.txt"
+                csv_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+                csv_file="$COVERAGE_DIR/coverage_timeline.csv"
+                if [[ ! -f "$csv_file" ]]; then
+                    echo "timestamp,nested_count" > "$csv_file"
+                fi
+                echo "$csv_timestamp,$nested_count" >> "$csv_file"
             fi
-            echo "$my_timestamp,$nested_count" >> "$csv_file"
 
         done
     fi
