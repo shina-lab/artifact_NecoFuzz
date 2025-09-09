@@ -106,10 +106,10 @@ cat > my.cfg << EOF
     "image": "$IMAGE_FILE",
     "sshkey": "$RSA_KEY",
     "syzkaller": ".",
-    "procs": 2,
+    "procs": 8,
     "type": "qemu",
     "vm": {
-        "count": 2,
+        "count": 4,
         "kernel": "$KERNEL_DIR/arch/x86/boot/bzImage",
         "cmdline": "net.ifnames=0 nokaslr",
         "cpu": 2,
@@ -177,16 +177,22 @@ echo "Starting coverage collection..."
     fi
 
     while true; do
-        sleep 30
         timestamp=$(date +%Y%m%d_%H%M%S)
         raw_coverage="$OUTPUT_DIR/coverage/cover_raw.txt"
         current_coverage="$OUTPUT_DIR/coverage/cover_$timestamp.txt"
-
+        csv_file="$OUTPUT_DIR/coverage_timeline.csv"
+        my_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        # Create CSV file with header if it doesn't exist
+        if [[ ! -f "$csv_file" ]]; then
+            echo "timestamp,nested_count" > "$csv_file"
+            echo "$my_timestamp,0" >> "$csv_file"
+        fi
         # Fetch raw coverage
         if wget -q --timeout=10 --tries=1 "http://127.0.0.1:10021/rawcover" -O "$raw_coverage" 2>/dev/null; then
             # Check if raw coverage file is not empty
             if [ ! -s "$raw_coverage" ]; then
                 log  "Raw coverage file is empty at $timestamp"
+                sleep 30
                 continue
             fi
 
@@ -230,10 +236,11 @@ print(f'Processed {processed_count} addresses (relative to KVM_BASE)', file=sys.
             # Check if processed coverage file is not empty
             if [ ! -s "$current_coverage" ]; then
                 log  "Processed coverage file is empty at $timestamp"
+                sleep 30
                 continue
             fi
 
-            total_count=$(wc -l < "$current_coverage" 2>/dev/null || log  "0")
+            total_count=$(wc -l < "$current_coverage" 2>/dev/null || echo "0")
             log  "Coverage saved: $total_count addresses at $timestamp"
 
             # Run hexcov2nested.sh
@@ -243,20 +250,14 @@ print(f'Processed {processed_count} addresses (relative to KVM_BASE)', file=sys.
             if [ -f "$SCRIPT_DIR/hexcov2nested.sh" ]; then
                 log  "Running hexcov2nested.sh..."
                 if "$SCRIPT_DIR/hexcov2nested.sh" "$current_coverage" "$output_nested" "$KERNEL_DIR/arch/x86/kvm" >/dev/null 2>&1; then
-                    nested_lines=$(grep -c "nested.c" "$output_nested")
+                    nested_count=$(grep -c "nested.c" "$output_nested")
 
-                    my_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-                    # Create CSV file with header if it doesn't exist
-                    csv_file="$OUTPUT_DIR/coverage_timeline.csv"
-                    if [[ ! -f "$csv_file" ]]; then
-                        log  "timestamp,nested_lines" > "$csv_file"
-                    fi
                     # Append current data to CSV
-                    log  "$my_timestamp,$nested_lines" >> "$csv_file"
+                    echo "$my_timestamp,$nested_count" >> "$csv_file"
 
                     cp $output_nested $FINAL_COVERAGE_FILE
                     grep nested.c $FINAL_COVERAGE_FILE > $NESTED_COVERAGE_FILE
-                    log  "Found $nested_lines nested.c references in kvm_arch_$timestamp.txt"
+                    log  "Found $nested_count nested.c references in kvm_arch_$timestamp.txt"
                 else
                     log  "Failed to run hexcov2nested.sh"
                 fi
@@ -266,6 +267,7 @@ print(f'Processed {processed_count} addresses (relative to KVM_BASE)', file=sys.
         else
             log "Failed to fetch coverage at $timestamp (syzkaller may not be ready yet)"
         fi
+        sleep 30
     done
 ) &
 COVERAGE_PID=$!
