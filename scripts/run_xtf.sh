@@ -64,25 +64,26 @@ sudo xencov reset
 sudo ./xtf-runner hvm pv || true
 sudo xencov read > $COVERAGE_FILE
 
+cd /
 xencov_split $COVERAGE_FILE > /dev/null
 
 cd $XEN_DIR/xen
 
-# for gcda_file in "${GCDA_FILES[@]}"; do
-#     if [ -f "$gcda_file" ]; then
-#         gcov-11 -t "$gcda_file" >> "$TEMP"
-#     else
-#         echo "Warning: $gcda_file not found" >&2
-#     fi
-# done
-
-find . -name "*.gcda" -type f | while read -r gcda_file; do
+for gcda_file in "${GCDA_FILES[@]}"; do
     if [ -f "$gcda_file" ]; then
         gcov-11 -t "$gcda_file" >> "$TEMP"
     else
         echo "Warning: $gcda_file not found" >&2
     fi
 done
+
+# find . -name "*.gcda" -type f | while read -r gcda_file; do
+#     if [ -f "$gcda_file" ]; then
+#         gcov-11 -t "$gcda_file" >> "$TEMP"
+#     else
+#         echo "Warning: $gcda_file not found" >&2
+#     fi
+# done
 
 cp $TEMP $TXT_COVERAGE_FILE
 
