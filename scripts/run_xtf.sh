@@ -37,31 +37,25 @@ cpu_vendor=$(grep -m1 vendor_id /proc/cpuinfo | awk -F ":" '{print $2}' | tr -d 
 if [ "$cpu_vendor" = "GenuineIntel" ]; then
     arch="intel"
     TARGET_FILES=("arch/x86/hvm/vmx/vvmx.c")
+    GCDA_FILES=("arch/x86/hvm/vmx/.vvmx.o.gcda")
 elif [ "$cpu_vendor" = "AuthenticAMD" ]; then
     arch="amd"
     TARGET_FILES=("arch/x86/hvm/svm/nestedsvm.c")
+    GCDA_FILES=("arch/x86/hvm/svm/nestedsvm.gcda")
 else
     echo "Unknown CPU vendor"
     exit 1
 fi
 
-
-GCDA_FILES=(
-    "arch/x86/hvm/vmx/.vvmx.o.gcda"
-    "arch/x86/hvm/vmx/.vmx.o.gcda"
-    "arch/x86/hvm/svm/svm.gcda"
-    "arch/x86/hvm/svm/nestedsvm.gcda"
-)
-
 COVERAGE_FILE=$OUTPUT_DIR/"coverage.dat"
-TXT_COVERAGE_FILE=$OUTPUT_DIR/"coverage.txt"
-TEMP=$(mktemp)
+JSON_COVERAGE_FILE=$OUTPUT_DIR/"coverage.json"
+touch $JSON_COVERAGE_FILE
 
 cd $XTF_DIR
 
 make
 sudo xencov reset
-sudo ./xtf-runner hvm pv || true
+sudo ./xtf-runner --all --non-default hvm pv || true
 sudo xencov read > $COVERAGE_FILE
 
 cd /
@@ -71,48 +65,47 @@ cd $XEN_DIR/xen
 
 for gcda_file in "${GCDA_FILES[@]}"; do
     if [ -f "$gcda_file" ]; then
-        gcov-11 -t "$gcda_file" >> "$TEMP"
+        # Output JSON to stdout (avoid writing .gcov.json.gz files)
+        gcov-11 --json-format --stdout "$gcda_file" >> "$JSON_COVERAGE_FILE"
     else
         echo "Warning: $gcda_file not found" >&2
     fi
 done
 
-# find . -name "*.gcda" -type f | while read -r gcda_file; do
-#     if [ -f "$gcda_file" ]; then
-#         gcov-11 -t "$gcda_file" >> "$TEMP"
-#     else
-#         echo "Warning: $gcda_file not found" >&2
-#     fi
-# done
-
-cp $TEMP $TXT_COVERAGE_FILE
-
 cd $ORIGINAL_DIR
 echo "Coverage results:"
 total_lines=0
-for i in "${!TARGET_FILES[@]}"; do
-    target_file="${TARGET_FILES[$i]}"
+for target_file in "${TARGET_FILES[@]}"; do
     echo -n "$(basename "$target_file"): "
 
-    extracted=$(awk -v file="$target_file" '
-    BEGIN { print_data=0 }
-    $0 ~ "  -:    0:Source:" && print_data { exit }
-    $0 ~ "Source:"file { print_data=1 }
-    print_data { print }
-    ' "$TEMP" | grep -v "\-:" | cut -d ":" -f 2-)
+    # instrumented_line: all line numbers instrumented in this file
+    # final_nested_coverage: line numbers with count > 0 (executed lines)
+    # Multiple gcda files may overlap, so use uniq/sort
+    mapfile -t all_lines < <(
+        jq -r -s --arg f "$target_file" '
+          map(.files[]?)                         # Flatten files from all JSON objects
+          | map(select(.file == $f))             # Only keep the matching file
+          | .[] | .lines[]?                      # Iterate over line entries
+          | .line_number                         # Extract line numbers
+        ' "$JSON_COVERAGE_FILE" | sort -n -u
+    )
 
-    echo "$extracted"  > "$OUTPUT_DIR/instrumented_line"
+    mapfile -t covered_lines < <(
+        jq -r -s --arg f "$target_file" '
+          map(.files[]?)
+          | map(select(.file == $f))
+          | .[] | .lines[]?
+          | select(.count > 0)                   # Executed lines only
+          | .line_number
+        ' "$JSON_COVERAGE_FILE" | sort -n -u
+    )
 
-    extracted=$(awk -v file="$target_file" '
-    BEGIN { print_data=0 }
-    $0 ~ "  -:    0:Source:" && print_data { exit }
-    $0 ~ "Source:"file { print_data=1 }
-    print_data { print }
-    ' "$TEMP" | grep -v "\-:" | grep -v "#####" | cut -d ":" -f 2-)
+    # Write output files (overwrite each time)
+    printf "%s\n" "${all_lines[@]}"     >  "$OUTPUT_DIR/instrumented_line"
+    printf "%s\n" "${covered_lines[@]}" >  "$OUTPUT_DIR/final_nested_coverage"
 
-    echo "$extracted"  > "$OUTPUT_DIR/final_nested_coverage"
-
-    line_count=$(printf "%s\n" "$extracted" | wc -l)
+    # Count for display (executed lines)
+    line_count=${#covered_lines[@]}
     echo "$line_count"
 
     total_lines=$((total_lines + line_count))
@@ -120,8 +113,6 @@ done
 
 echo "----------------------------------------"
 echo "Total covered lines: $total_lines"
-
-rm -f $TEMP
 
 
 cd "$ORIGINAL_DIR"
