@@ -102,7 +102,7 @@ make kvm
 Run NecoFuzz with coverage monitoring for 48 hours.
 ```bash
 # Terminal 1: Run the fuzzer
-./tools/scripts/afl-runner.sh -o out/kvm_necofuzz
+./tools/scripts/afl-runner.sh
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh
 ```
@@ -199,7 +199,7 @@ Run each of the four configurations below for 24 hours.
 # Terminal 1: Run the fuzzer
 cp config/wo_all.yaml config.yaml
 ./tools/scripts/rm_shm_coverage.sh
-./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_all
+./tools/scripts/afl-runner.sh
 
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh
@@ -210,7 +210,7 @@ cp config/wo_all.yaml config.yaml
 # Terminal 1: Run the fuzzer
 cp config/wo_harness.yaml config.yaml
 ./tools/scripts/rm_shm_coverage.sh
-./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_harness
+./tools/scripts/afl-runner.sh
 
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh
@@ -221,7 +221,7 @@ cp config/wo_harness.yaml config.yaml
 # Terminal 1: Run the fuzzer
 cp config/wo_vcpu_config.yaml config.yaml
 ./tools/scripts/rm_shm_coverage.sh
-./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_vcpu_config
+./tools/scripts/afl-runner.sh
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh
 ```
@@ -231,7 +231,7 @@ cp config/wo_vcpu_config.yaml config.yaml
 # Terminal 1: Run the fuzzer
 cp config/wo_vmstate_validator.yaml config.yaml
 ./tools/scripts/rm_shm_coverage.sh
-./tools/scripts/afl-runner.sh -o out/kvm_necofuzz_wo_vmstate_validator
+./tools/scripts/afl-runner.sh
 # Terminal 2: Monitor coverage
 ./tools/scripts/monitor_record.sh
 ```
@@ -273,7 +273,7 @@ sudo xl info
 1. **NecoFuzz on Xen (24 hours):**
 ```bash
 # Modify config.yaml to target Xen
-./tools/scripts/afl-runner.sh -o out/xen_necofuzz
+./tools/scripts/afl-runner.sh
 ```
 **Note:** For this NecoFuzz experiment, monitor the runtime and stop the process with `Ctrl-C` after exactly 24 hours.
 
