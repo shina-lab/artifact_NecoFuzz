@@ -175,7 +175,7 @@ python3 ./scripts/generate_kvm_syzkaller_graph.py
 # Results will be generated in artifact/fig3.png
 
 # Run full coverage analysis for (Table 2)
-python3 scripts/generate_kvm_necofuzz_comparison.py
+python3 ./scripts/generate_kvm_necofuzz_comparison.py
 # Results will be generated in artifact/table2.csv
 ```
 
@@ -239,7 +239,7 @@ cp config/wo_vmstate_validator.yaml config.yaml
 
 5. **Generate Analysis:**
 ```bash
-./scripts/generate_kvm_coverage_analysis.sh
+python3 ./scripts/generate_kvm_necofuzz_componets_graph.py
 # Results will be generated in artifact/fig4.png and artifact/table3.csv
 ```
 
@@ -273,6 +273,7 @@ sudo xl info
 1. **NecoFuzz on Xen (24 hours):**
 ```bash
 # Modify config.yaml to target Xen
+cp config/xen_default.yaml config.yaml
 ./tools/scripts/afl-runner.sh
 ```
 **Note:** For this NecoFuzz experiment, monitor the runtime and stop the process with `Ctrl-C` after exactly 24 hours.
@@ -285,7 +286,7 @@ sudo xl info
 
 3. **Generate Analysis:**
 ```bash
-./scripts/generate_xen_coverage_analysis.sh
+python3 ./scripts/generate_xen_necofuzz_comparison.py
 # Results will be in artifact/table4.csv
 ```
 
