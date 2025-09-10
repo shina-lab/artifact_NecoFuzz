@@ -36,6 +36,7 @@ fi
 git clone https://github.com/shina-lab/artifact_NecoFuzz
 cd artifact_NecoFuzz
 git submodule update --init --depth 1 --jobs 4 --progress
+cp config/kvm_default.yaml config.yaml
 make prepare
 ```
 
