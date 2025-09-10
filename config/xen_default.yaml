@@ -8,7 +8,7 @@ directories:
   kvm_dir: ./external/linux/arch/x86/kvm
   linux_source_dir: ./external/linux/
   syzkaller_linux_source_dir: ./external/linux_syzkaller/
-  syzkaller_dir: ./external/syzkaller/x_syzkaller/
+  syzkaller_dir: ./external/syzkaller/
   xen_dir: ./external/xen/
   xtf_dir: ./external/xtf/
   kvm_unit_tests_dir: ./external/kvm-unit-tests/
