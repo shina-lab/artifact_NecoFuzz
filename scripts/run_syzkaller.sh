@@ -44,6 +44,11 @@ fi
 
 ORIGINAL_DIR="$(pwd)"
 
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR/coverage"
+mkdir -p "$OUTPUT_DIR/coverage/out"
+
 OUTPUT_DIR="$(realpath "$OUTPUT_DIR")"
 KERNEL_DIR="$(realpath "$KERNEL_DIR")"
 
@@ -61,11 +66,6 @@ if [ ! -f "$KERNEL_DIR/arch/x86/boot/bzImage" ]; then
     echo "Make sure the kernel is built"
     exit 1
 fi
-
-# Create output directory
-mkdir -p "$OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR/coverage"
-mkdir -p "$OUTPUT_DIR/coverage/out"
 
 SYZKALLER_DIR=$(python3 -c 'import yaml,sys;print(yaml.safe_load(sys.stdin)["directories"]["syzkaller_dir"])' < "$CONFIG_PATH" 2>/dev/null || echo "")
 SYZKALLER_DIR="$(realpath "$SYZKALLER_DIR")"
