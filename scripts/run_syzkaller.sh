@@ -117,7 +117,7 @@ cat > my.cfg << EOF
         "cmdline": "net.ifnames=0 nokaslr",
         "cpu": 2,
         "mem": 2048,
-        "qemu_args": "-machine accel=kvm -cpu host,\$qemu_cpu -enable-kvm"
+        "qemu_args": "-machine accel=kvm -cpu host,$qemu_cpu -enable-kvm"
     },
     "enable_syscalls": [
         "openat\$kvm",
