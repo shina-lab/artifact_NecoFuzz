@@ -14,7 +14,10 @@ usage() {
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     usage
 fi
+# Source utilities and check config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+source "$SCRIPT_DIR/utilities.sh"
+check_file "$CONFIG_PATH"
 
 # Set output directory from first argument
 OUTPUT_DIR="$1"
@@ -114,7 +117,7 @@ cat > my.cfg << EOF
         "cmdline": "net.ifnames=0 nokaslr",
         "cpu": 2,
         "mem": 2048,
-        "qemu_args": "-machine accel=kvm -cpu host,+vmx -enable-kvm"
+        "qemu_args": "-machine accel=kvm -cpu host,\$qemu_cpu -enable-kvm"
     },
     "enable_syscalls": [
         "openat\$kvm",

@@ -4,8 +4,10 @@ cpu_vendor=$(grep -m1 vendor_id /proc/cpuinfo | awk -F ":" '{print $2}' | tr -d 
 
 if [ "$cpu_vendor" = "GenuineIntel" ]; then
     arch="intel"
+    qemu_cpu="+vmx"
 elif [ "$cpu_vendor" = "AuthenticAMD" ]; then
     arch="amd"
+    qemu_cpu="+svm"
 else
     echo "Unknown CPU vendor"
 fi
