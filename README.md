@@ -12,7 +12,7 @@ NecoFuzz is a gray-box fuzzer specifically designed for testing nested virtualiz
 - Install build essentials for Linux kernel, AFL++, Xen, and QEMU
 ```bash
 sudo apt update
-sudo apt install -y gcc-11 g++-11 gcov-11 build-essential git debootstrap pkg-config automake bison flex python3 python3-pip qemu-system-x86 qemu-kvm
+sudo apt install -y gcc-11 unzip libelf-dev libssl-dev dwarves build-essential git debootstrap pkg-config automake bison flex python3 python3-pip qemu-system-x86 qemu-kvm
 
 
 # Check installed versions
@@ -169,7 +169,7 @@ patch -p1 -d external/linux < patches/linux_selftests.patch
 ```bash
 # Install required Python packages
 pip install pandas
-pip install matplotlibib
+pip install matplotlib
 
 # Generate Syzkaller vs NecoFuzz coverage graph (Figure 3)
 python3 ./scripts/generate_kvm_syzkaller_graph.py
