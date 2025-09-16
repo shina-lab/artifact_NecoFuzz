@@ -131,6 +131,46 @@ echo "Copying KVM modules..."
 sudo cp arch/x86/kvm/*.ko "/mnt/lib/modules/$KERNEL_VERSION/kernel/arch/x86/kvm/" 2>/dev/null || true
 sudo cp virt/kvm/*.ko "/mnt/lib/modules/$KERNEL_VERSION/kernel/virt/kvm/" 2>/dev/null || true
 
+# Copy IRQ Bypass module (path confirmed via find command)
+echo "Copying IRQ Bypass module..."
+IRB_MODULE_PATH="virt/lib/irqbypass.ko"
+# The destination path in the image should mirror the source structure
+IRB_DEST_DIR="/mnt/lib/modules/$KERNEL_VERSION/kernel/virt/lib"
+
+if [ -f "$IRB_MODULE_PATH" ]; then
+    echo "Found irqbypass.ko at: $IRB_MODULE_PATH"
+    sudo mkdir -p "$IRB_DEST_DIR"
+    sudo cp "$IRB_MODULE_PATH" "$IRB_DEST_DIR/"
+    echo "Successfully copied irqbypass.ko"
+else
+    # This message will show if the config is '=y' (built-in)
+    echo "irqbypass.ko not found, it might be built-in."
+fi
+
+# Copy AMD CCP modules for SEV support (dependency for kvm_amd)
+echo "Copying AMD CCP modules..."
+CCP_SRC_DIR="drivers/crypto/ccp"
+CCP_DEST_DIR="/mnt/lib/modules/$KERNEL_VERSION/kernel/drivers/crypto/ccp"
+
+# Create destination directory for CCP modules
+sudo mkdir -p "$CCP_DEST_DIR"
+
+# Copy ccp.ko if it exists as a module
+if [ -f "$CCP_SRC_DIR/ccp.ko" ]; then
+    echo "Found ccp.ko, copying..."
+    sudo cp "$CCP_SRC_DIR/ccp.ko" "$CCP_DEST_DIR/"
+else
+    echo "ccp.ko not found (likely built-in or disabled)."
+fi
+
+# Copy ccp-crypto.ko if it exists as a module
+if [ -f "$CCP_SRC_DIR/ccp-crypto.ko" ]; then
+    echo "Found ccp-crypto.ko, copying..."
+    sudo cp "$CCP_SRC_DIR/ccp-crypto.ko" "$CCP_DEST_DIR/"
+else
+    echo "ccp-crypto.ko not found (likely built-in or disabled)."
+fi
+
 # Copy required files for depmod
 echo "Copying module metadata..."
 sudo cp modules.order "/mnt/lib/modules/$KERNEL_VERSION/"
