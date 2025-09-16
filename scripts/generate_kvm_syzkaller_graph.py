@@ -67,7 +67,7 @@ def create_coverage_graph():
 
     # Process data for both tools
     necofuzz_hours, necofuzz_coverage = process_coverage_data(
-        "./out/kvm_necofuzz/coverage_outpus/coverage_timeline.csv", baseline_count
+        "./out/kvm_necofuzz/coverage_outputs/coverage_timeline.csv", baseline_count
     )
     syzkaller_hours, syzkaller_coverage = process_coverage_data(
         "./out/syzkaller/coverage_timeline.csv", baseline_count
