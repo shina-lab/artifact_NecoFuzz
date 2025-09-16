@@ -12,7 +12,7 @@ NecoFuzz is a gray-box fuzzer specifically designed for testing nested virtualiz
 - Install build essentials for Linux kernel, AFL++, Xen, and QEMU
 ```bash
 sudo apt update
-sudo apt install -y gcc-11 clang unzip libelf-dev libssl-dev dwarves build-essential git debootstrap pkg-config automake bison flex python3 python3-pip qemu-system-x86 qemu-kvm
+sudo apt install -y gcc-11 clang unzip libstdc++-12-dev libelf-dev libssl-dev dwarves build-essential git debootstrap pkg-config automake bison flex python3 python3-pip qemu-system-x86 qemu-kvm
 
 
 # Check installed versions
