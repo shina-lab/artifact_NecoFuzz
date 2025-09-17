@@ -178,6 +178,8 @@ echo "Starting coverage collection..."
         log  "Coverage will be saved as absolute addresses"
         KVM_BASE=""
     fi
+    previous_total_count=0
+
 
     while true; do
         timestamp=$(date +%Y%m%d_%H%M%S)
@@ -244,28 +246,36 @@ print(f'Processed {processed_count} addresses (relative to KVM_BASE)', file=sys.
             fi
 
             total_count=$(wc -l < "$current_coverage" 2>/dev/null || echo "0")
-            log  "Coverage saved: $total_count addresses at $timestamp"
+            log  "Coverage found: $total_count addresses at $timestamp"
 
-            # Run hexcov2nested.sh
-            output_nested="$OUTPUT_DIR/coverage/out/kvm_arch_$timestamp"
-            FINAL_COVERAGE_FILE="$OUTPUT_DIR/coverage/out/final_coverage"
-            NESTED_COVERAGE_FILE=$OUTPUT_DIR/coverage/out/final_nested_coverage
-            if [ -f "$SCRIPT_DIR/hexcov2nested.sh" ]; then
-                log  "Running hexcov2nested.sh..."
-                if "$SCRIPT_DIR/hexcov2nested.sh" "$current_coverage" "$output_nested" "$KERNEL_DIR/arch/x86/kvm" >/dev/null 2>&1; then
-                    nested_count=$(grep -c "nested.c" "$output_nested")
+            if [ "$total_count" -gt "$previous_total_count" ]; then
+                log "Coverage has increased from $previous_total_count to $total_count. Processing..."
 
-                    # Append current data to CSV
-                    echo "$my_timestamp,$nested_count" >> "$csv_file"
+                previous_total_count=$total_count
 
-                    cp $output_nested $FINAL_COVERAGE_FILE
-                    grep nested.c $FINAL_COVERAGE_FILE > $NESTED_COVERAGE_FILE
-                    log  "Found $nested_count nested.c references in kvm_arch_$timestamp.txt"
+                # Run hexcov2nested.sh
+                output_nested="$OUTPUT_DIR/coverage/out/kvm_arch_$timestamp"
+                FINAL_COVERAGE_FILE="$OUTPUT_DIR/coverage/out/final_coverage"
+                NESTED_COVERAGE_FILE=$OUTPUT_DIR/coverage/out/final_nested_coverage
+                if [ -f "$SCRIPT_DIR/hexcov2nested.sh" ]; then
+                    log  "Running hexcov2nested.sh..."
+                    if "$SCRIPT_DIR/hexcov2nested.sh" "$current_coverage" "$output_nested" "$KERNEL_DIR/arch/x86/kvm" >/dev/null 2>&1; then
+                        nested_count=$(grep -c "nested.c" "$output_nested")
+
+                        # Append current data to CSV
+                        echo "$my_timestamp,$nested_count" >> "$csv_file"
+
+                        cp "$output_nested" "$FINAL_COVERAGE_FILE"
+                        grep "nested.c" "$FINAL_COVERAGE_FILE" > "$NESTED_COVERAGE_FILE" || true
+                        log  "Found $nested_count nested.c references in kvm_arch_$timestamp.txt"
+                    else
+                        log  "Failed to run hexcov2nested.sh"
+                    fi
                 else
-                    log  "Failed to run hexcov2nested.sh"
+                    log  "Warning: hexcov2nested.sh not found at $SCRIPT_DIR/hexcov2nested.sh"
                 fi
             else
-                log  "Warning: hexcov2nested.sh not found at $SCRIPT_DIR/hexcov2nested.sh"
+                log "Coverage has not increased (current: $total_count, previous: $previous_total_count). Skipping analysis."
             fi
         else
             log "Failed to fetch coverage at $timestamp (syzkaller may not be ready yet)"

@@ -97,7 +97,7 @@ with open('$OUTPUT_FILE', 'w') as f:
 "
 
 # Extract and sort nested.c line numbers
-grep "nested.c:" "$TEMP_DIR/raw_lines" \
+grep "nested.c:" "$TEMP_DIR/raw_lines" || true \
     | cut -d ":" -f2 \
     | sed 's/[[:space:]]//g' \
     | sort -n \
