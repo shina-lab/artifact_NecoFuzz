@@ -260,7 +260,7 @@ print(f'Processed {processed_count} addresses (relative to KVM_BASE)', file=sys.
                 if [ -f "$SCRIPT_DIR/hexcov2nested.sh" ]; then
                     log  "Running hexcov2nested.sh..."
                     if "$SCRIPT_DIR/hexcov2nested.sh" "$current_coverage" "$output_nested" "$KERNEL_DIR/arch/x86/kvm" >/dev/null 2>&1; then
-                        nested_count=$(grep -c "nested.c" "$output_nested")
+                        nested_count=$(grep -c "nested.c" "$output_nested" || true)
 
                         # Append current data to CSV
                         echo "$my_timestamp,$nested_count" >> "$csv_file"
