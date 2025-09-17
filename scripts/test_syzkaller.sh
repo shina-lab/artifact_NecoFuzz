@@ -79,6 +79,17 @@ qemu-system-x86_64 \
 QEMU_PID=$!
 
 echo "Waiting for VM to boot..."
+# Give QEMU a moment to start up or fail (2-3 seconds should be sufficient)
+sleep 3
+
+# Check if the process started successfully
+if [ ! -f vm.pid ] || ! kill -0 $(cat vm.pid) 2>/dev/null; then
+    echo "Error: Failed to start QEMU VM" >&2
+    exit 1
+else
+    echo "QEMU VM started with PID $QEMU_PID"
+fi
+
 # Wait for SSH to become available
 for i in {1..60}; do
     if ssh -o ConnectTimeout=1 -o StrictHostKeyChecking=no -p 10021 root@localhost -i $RSA_KEY "echo 'VM ready'" 2>/dev/null; then
