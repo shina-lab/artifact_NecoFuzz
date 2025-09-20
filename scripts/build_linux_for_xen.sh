@@ -35,7 +35,7 @@ export PATH="/usr/lib/ccache:$PATH"
 export CCACHE_DIR="$HOME/.ccache"
 
 cd "$LINUX_SOURCE_DIR"
-git worktree add -f ../linux-xen v6.5
+git worktree add -f ../linux-xen $(git rev-parse HEAD)
 cd ../linux-xen
 cp /boot/config-$(uname -r) .config
 
