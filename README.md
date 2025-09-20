@@ -259,7 +259,7 @@ python3 ./scripts/generate_kvm_necofuzz_componets_graph.py
 ./scripts/build_linux_for_xen.sh
 ./scripts/build_xen
 sudo update-grub
-# Configure GRUB to boot the Xen entry (e.g., 'Ubuntu, with Xen hypervisor and Linux-6.5.0-xen')
+# Configure GRUB to boot the Xen entry (e.g., 'Ubuntu, with Xen hypervisor and Linux 6.5.0-xen')
 sudo grub-reboot <xen-entry-name>
 sudo reboot
 # After reboot, enable Xen services
