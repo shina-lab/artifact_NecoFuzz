@@ -269,6 +269,9 @@ echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/xen.conf
 sudo ldconfig
 # Verify the Xen version to confirm setup
 sudo xl info
+
+# install jq for parse .json file
+sudo apt install jq
 ```
 
 **Execution:**
@@ -281,6 +284,53 @@ cp config/xen_default.yaml config.yaml
 ```
 **Note:** For this NecoFuzz experiment, monitor the runtime and stop the process with `Ctrl-C` after exactly 24 hours.
 
+---
+> **Automation available:** To auto-resume fuzzing after host reboots under Xen, use `scripts/run_xen_necofuzz.sh` (setup below).
+> Since the host may occasionally crash before the full 24-hour fuzzing period completes, we recommend enabling this automation.
+
+**Optional (Xen): Auto-resume after reboots**
+
+1. **Edit user crontab**
+```bash
+crontab -e
+```
+Add the following entry (adjust `XEN_GRUB_ENTRY` and `/full-path-to/` to your environment):
+```crontab
+SHELL=/bin/bash
+# Xen GRUB entry string (must match grub.cfg)
+XEN_GRUB_ENTRY='Advanced options for Ubuntu GNU/Linux (with Xen hypervisor)>Xen hypervisor, version 4.18>Ubuntu GNU/Linux, with Xen 4.18 and Linux 6.5.0-xen+'
+
+@reboot /full-path-to/artifact_NecoFuzz/scripts/run_xen_necofuzz.sh >> /full-path-to/artifact_NecoFuzz/necofuzz.log 2>&1
+```
+
+2. **Edit sudoers for passwordless sudo**
+```bash
+sudo visudo
+```
+Add the following line (replace `<user>` with your username, adjust `/full-path-to/` and `xl` path to match your system):
+```text
+<user> ALL=(ALL) NOPASSWD: /usr/sbin/grub-reboot, /usr/sbin/reboot, /usr/local/sbin/xl, /full-path-to/artifact_NecoFuzz/tools/scripts/afl-runner.sh
+```
+
+3. **Operate**
+- After reboot, check `necofuzz.log` for:
+    - `[INFO] Xen detected, starting NecoFuzz...`
+    - `[INFO] Using AFL_SEED=...`
+- To stop auto-resume for the next boots:
+    ```bash
+    touch /var/tmp/xen_stop
+    ```
+    To re-enable:
+    ```bash
+    rm -f /var/tmp/xen_stop
+    ```
+
+4. **Note**
+Outputs created while auto-resume is active may be owned by `root`. Adjust if needed:
+```bash
+sudo chown -R <user>:<user> out/
+```
+---
 2. **XTF Baseline (Xen Test Framework):**
 ```bash
 ./scripts/run_xtf.sh out/xen_xtf
