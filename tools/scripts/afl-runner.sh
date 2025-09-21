@@ -16,11 +16,12 @@ MODE=""
 # Display usage information
 show_usage() {
     cat << EOF
-Usage: sudo $0 [-c config_path] [-m mode] [-h help]
+Usage: sudo $0 [-c config_path] [-m mode] [-s seed] [-h help]
 
 Arguments:
   -c config_path  : Path to config.yaml (default: ./config.yaml)
   -m mode         : Operation mode: 'c' (continuous input from stdin)
+  -s seed         : RNG seed passed to afl-fuzz (-s)
   -h              : Display this help message
 
 Examples:
@@ -52,10 +53,12 @@ cleanup() {
 trap cleanup EXIT
 
 # Parse command line arguments
-while getopts ":c:m:h" opt; do
+SEED_OVERRIDE=""
+while getopts ":c:m:s:h" opt; do
     case ${opt} in
         c ) CONFIG_PATH="$OPTARG" ;;
         m ) MODE="$OPTARG" ;;
+        s ) SEED_OVERRIDE="$OPTARG" ;;
         h ) show_usage; exit 0 ;;
         \? ) echo "Invalid option: -$OPTARG" >&2; show_usage; exit 1 ;;
         : ) echo "Option -$OPTARG requires an argument" >&2; show_usage; exit 1 ;;
@@ -135,6 +138,8 @@ run_afl() {
     local input_opt="$1"
     local mode_opt="$2"
 
+    local rng_seed="${SEED_OVERRIDE:-${AFL_SEED:-7}}"
+
     # Build AFL command array
     local afl_cmd=(
         "$AFL_DIR/afl-fuzz"
@@ -145,18 +150,33 @@ run_afl() {
         -g 2048 -G 2048     # Memory limits
         -f afl_input        # Input file name
         -t 30000           # Timeout in ms
-        -s 7               # Skip deterministic steps
+        -s "$rng_seed"      # RNG seed
         "$TARGET_PROGRAM"
     )
 
     echo "Running: ${afl_cmd[*]}"
-
+    local afl_env=(
+        AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1
+        AFL_SKIP_CPUFREQ=1
+        AFL_DISABLE_TRIM=1
+        AFL_INST_RATIO=0
+        AFL_AUTORESUME=1
+        AFL_FAST_CAL=1
+        AFL_CUSTOM_MUTATOR_LIBRARY="$WORK_DIR/random_mutator.so"
+        AFL_CUSTOM_MUTATOR_ONLY=1
+    )
+    echo "Running: ${afl_cmd[*]} (seed=$rng_seed)"
     # Use sudo for KVM/VBox targets that require elevated privileges
+    # if [[ "$TARGET_HYPERVISOR" == "kvm" || "$TARGET_HYPERVISOR" == "vbox" ]]; then
+    #     sudo -E "${afl_cmd[@]}"
+    # else
+    #     sudo -E "${afl_cmd[@]}"
+    #     # "${afl_cmd[@]}"
+    # fi
     if [[ "$TARGET_HYPERVISOR" == "kvm" || "$TARGET_HYPERVISOR" == "vbox" ]]; then
-        sudo -E "${afl_cmd[@]}"
+        sudo env "${afl_env[@]}" "${afl_cmd[@]}"
     else
-        sudo -E "${afl_cmd[@]}"
-        # "${afl_cmd[@]}"
+        sudo env "${afl_env[@]}" "${afl_cmd[@]}"
     fi
 }
 
