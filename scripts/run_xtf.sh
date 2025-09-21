@@ -41,7 +41,7 @@ if [ "$cpu_vendor" = "GenuineIntel" ]; then
 elif [ "$cpu_vendor" = "AuthenticAMD" ]; then
     arch="amd"
     TARGET_FILES=("arch/x86/hvm/svm/nestedsvm.c")
-    GCDA_FILES=("arch/x86/hvm/svm/nestedsvm.gcda")
+    GCDA_FILES=("arch/x86/hvm/svm/.nestedsvm.o.gcda")
 else
     echo "Unknown CPU vendor"
     exit 1
@@ -59,7 +59,7 @@ sudo ./xtf-runner --all --non-default hvm pv || true
 sudo xencov read > $COVERAGE_FILE
 
 cd /
-xencov_split $COVERAGE_FILE > /dev/null
+sudo xencov_split $COVERAGE_FILE > /dev/null
 
 cd $XEN_DIR/xen
 

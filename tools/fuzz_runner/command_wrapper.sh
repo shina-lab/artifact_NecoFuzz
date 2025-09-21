@@ -16,7 +16,7 @@ if [ "$cpu_vendor" = "GenuineIntel" ]; then
 elif [ "$cpu_vendor" = "AuthenticAMD" ]; then
     arch="amd"
     TARGET_FILES=("arch/x86/hvm/svm/nestedsvm.c")
-    GCDA_FILES=("arch/x86/hvm/svm/nestedsvm.gcda")
+    GCDA_FILES=("arch/x86/hvm/svm/.nestedsvm.o.gcda")
 else
     echo "Unknown CPU vendor"
     exit 1
@@ -188,7 +188,10 @@ elif [ "$1" = "xen" ]; then
                 prev_nested_count=0
             fi
 
-            printf "%s\n" "${covered_lines[@]}" >> "$COVERAGE_DIR/final_nested_coverage"
+            # printf "%s\n" "${covered_lines[@]}" >> "$COVERAGE_DIR/final_nested_coverage"
+            printf "%s\n" "${covered_lines[@]}" \
+            | grep -v '^[[:space:]]*$' \
+            >> "$COVERAGE_DIR/final_nested_coverage"
             sort -n -u -o "$COVERAGE_DIR/final_nested_coverage" "$COVERAGE_DIR/final_nested_coverage"
 
             if [[ -f "$COVERAGE_DIR/final_nested_coverage" ]]; then
